@@ -27,3 +27,4 @@ __pycache__/
 experiments/
 env/
 .env
+.vercel
