@@ -33,24 +33,22 @@ export default function StudentSignUp() {
 
     try {
       console.log(formData);
-      const res = await fetch(`${BACKEND_URL}/users/student/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (res.status === 200)  {
-        setResponse("Successful");
-        localStorage.setItem("token", data.access_token);
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 2000);
-      } else {
-        setResponse("Unsuccessful");
-      }
-      setIsLoading(false);
+      await axios.post(`${BACKEND_URL}/users/student/login`, formData)
+        .then((res) => {
+          if (res.status === 200) {
+            setResponse("Successful");
+            localStorage.setItem("token", res.data.access_token);
+            setTimeout(() => {
+              navigate("/dashboard");
+            }, 2000);
+          }
+          else {
+            setResponse("Unsuccessful");
+          }
+        })
+        .catch((error) => {
+          console.error("Error submitting form:", error);
+        });
     } catch (error) {
       setResponse(null);
       console.error("Error submitting form:", error);
