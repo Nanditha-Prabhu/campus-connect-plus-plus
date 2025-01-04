@@ -126,7 +126,7 @@ export default function FindProjects() {
               >
                 <option value="">Select area of interest</option>
                 {areaOfInt &&
-                  areaOfInt.flat().map((item, idx) => {
+                  areaOfInt.map((item, idx) => {
                     return (
                       <option key={idx} value={item}>
                         {item}

@@ -19,7 +19,7 @@ async def find_people(people: str, area: str):
         result, meta = db.cypher_query(query2)
     else:
         result, meta = db.cypher_query(query1)
-    print(result)
+    # print(result)
     # print(meta)
     # print(len(result))
     # result_as_dict = [dict(zip(meta, row)) for row in result]
@@ -58,6 +58,7 @@ async def find_people(people: str, area: str):
     print(nodes)
     return nodes
 
+
 @router.get("/find_projects")
 async def find_projects(status: str, area: str):
     query1 = "MATCH (P:PROJECT) WHERE '"+ area +"' IN P.area_of_interest AND P.status= '" + status + "' RETURN P.title, P.area_of_interest, P.description, P.status "
@@ -65,10 +66,9 @@ async def find_projects(status: str, area: str):
     # ???    
     if status =='All':
         result, meta = db.cypher_query(query2)
-        print(result)
     else:
         result, meta = db.cypher_query(query1)
-        print(result)
+    print(result)
     return result
 
 
@@ -84,7 +84,7 @@ async def find_students(areaOfInterest: str, skill: str):
         'skill': skill
     }
     result, meta = db.cypher_query(query, params=parameters)
-    print(result)
+    # print(result)
     return result
 
 
@@ -108,9 +108,12 @@ async def all_area_of_interests():
     RETURN DISTINCT interest
     ORDER BY interest
     """
-    result, meta = db.cypher_query(query)
-    # print(result)
-    return result
+    qresult, meta = db.cypher_query(query)
+    aoi = []
+    for interests in qresult:
+        aoi.append(*interests)
+    # print(aoi)
+    return aoi
 
 
 @router.get("/all_skills")
@@ -121,9 +124,13 @@ async def all_skills():
     RETURN DISTINCT sk
     ORDER BY sk
     """
-    result, meta = db.cypher_query(query)
-    print(result)
-    return result
+    qresult, meta = db.cypher_query(query)
+    # print(result)
+    skills = []
+    for skill in qresult:
+        skills.append(*skill)
+    print(skills)
+    return skills
 
 
 @router.get('/know-team')
@@ -163,10 +170,9 @@ def get_projects(status: str):
     # print(result)
     if status =='All':
         result, meta = db.cypher_query(query2)
-        print(result)
     else:
         result, meta = db.cypher_query(query1, params=parameters)
-        print(result)
+    # print(result)
     projects = []
     for record in result:
         project = {
@@ -177,5 +183,5 @@ def get_projects(status: str):
             "Faculties": record[4]
         }
         projects.append(project)
-    print(projects)
+    # print(projects)
     return projects

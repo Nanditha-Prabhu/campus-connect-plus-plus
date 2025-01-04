@@ -209,7 +209,7 @@ export default function FacultySignUp() {
                   >
                     <option value="">Select area of interest</option>
                     {areaOfInt &&
-                      areaOfInt.flat().map((item, idx) => {
+                      areaOfInt.map((item, idx) => {
                         return (
                           <option
                             className="text-black"
@@ -246,7 +246,7 @@ export default function FacultySignUp() {
                   >
                     <option value="">Select area of interest</option>
                     {areaOfInt &&
-                      areaOfInt.flat().map((item, idx) => {
+                      areaOfInt.map((item, idx) => {
                         return (
                           <option
                             className="text-black"

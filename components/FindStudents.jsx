@@ -119,7 +119,7 @@ export default function FindStudents() {
               >
                 <option value="">Select area of interest</option>
                 {areaOfInt &&
-                  areaOfInt.flat().map((item, idx) => {
+                  areaOfInt.map((item, idx) => {
                     return (
                       <option key={item} value={item}>
                         {item}
@@ -143,7 +143,7 @@ export default function FindStudents() {
               >
                 <option value="">Select skill</option>
                 {skls &&
-                  skls.flat().map((item, idx) => {
+                  skls.map((item, idx) => {
                     return (
                       <option id={item} name="skills" value={item}>
                         {item}

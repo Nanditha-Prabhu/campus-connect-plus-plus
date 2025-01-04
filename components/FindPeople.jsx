@@ -118,7 +118,7 @@ export default function FindPeople() {
                 className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
               >
                 <option value="">Select area of interest</option>
-                {areaOfInt && areaOfInt.flat().map((item, idx)=>{
+                {areaOfInt && areaOfInt.map((item, idx)=>{
                         return <option key={item} value={item}>
                           {item}
                         </option>

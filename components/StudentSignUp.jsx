@@ -283,7 +283,7 @@ export default function StudentSignUp() {
                   >
                     <option value="">Select area of interest</option>
                     {areaOfInt &&
-                      areaOfInt.flat().map((item, idx) => {
+                      areaOfInt.map((item, idx) => {
                         return (
                           <option
                             className="text-black"
@@ -320,7 +320,7 @@ export default function StudentSignUp() {
                   >
                     <option value="">Select area of interest</option>
                     {areaOfInt &&
-                      areaOfInt.flat().map((item, idx) => {
+                      areaOfInt.map((item, idx) => {
                         return (
                           <option
                             className="text-black"
@@ -394,7 +394,7 @@ export default function StudentSignUp() {
                 <div className="mt-2 space-y-2">
                   <div className=" justify-between grid grid-cols-3 gap-4">
                     {skls &&
-                      skls.flat().map((item, idx) => {
+                      skls.map((item, idx) => {
                         return (
                           <div key={idx} className="flex items-center space-x-2">
                             <input
