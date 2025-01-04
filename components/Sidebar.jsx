@@ -244,6 +244,17 @@ export default function Sidebar({ isOpen }) {
                 </span>
               </Link>
             </li>
+            <li>
+              <Link
+                to="/project-listing"
+                className="flex items-center p-2 rounded-lg text-gray-500 dark:text-gray-200 hover:bg-gray-300 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-100 group"
+              >
+                <BsKanban className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" />
+                <span className="flex-1 ms-3 whitespace-nowrap">
+                  Project listing
+                </span>
+              </Link>
+            </li>
           </ul>
           <div>
             {/* darkmode component */}

@@ -136,24 +136,25 @@ const Calendar = () => {
     return events
       .filter((e) => isSameDay(e.date, day))
       .map((e, index) => (
-        <div
-          key={index}
-          className={`event p-1 rounded w-full mt-1 flex flex-row justify-between items-center ${
-            e.type === "meeting"
-              ? "bg-yellow-300 dark:bg-yellow-400"
-              : "bg-purple-300 dark:bg-purple-400"
-          }`}
-        >
-          {e.title}
-          <MdDelete
-            onClick={(event) => {
-              event.stopPropagation();
-              deleteEvent(e);
-            }}
-          />
-          {/* we have to use anonymous function for deleteEvent else as soon as we add an event it will get deleted. */}
-          {/* if we press delete btn, even the modal was being shown. Thats why we stopped event propagation. */}
-        </div>
+      <div
+        key={index}
+        className={`event p-1 rounded w-fit mt-1 flex flex-row justify-between items-center text-left  ${
+        e.type === "meeting"
+          ? "bg-yellow-300 dark:bg-yellow-400"
+          : "bg-purple-300 dark:bg-purple-400"
+        }`}
+      >
+        {e.title}
+        <MdDelete
+        className="min-w-10"
+        onClick={(event) => {
+          event.stopPropagation();
+          deleteEvent(e);
+        }}
+        />
+        {/* we have to use anonymous function for deleteEvent else as soon as we add an event it will get deleted. */}
+        {/* if we press delete btn, even the modal was being shown. Thats why we stopped event propagation. */}
+      </div>
       ));
   };
 
@@ -212,7 +213,7 @@ const Calendar = () => {
         const cloneDay = day;
         days.push(
           <div
-            className={`col p-2 border border-gray-200 dark:border-gray-600 text-center cursor-pointer ${
+            className={`col p-2 border border-gray-200 dark:border-gray-600 text-center cursor-pointer  ${
               !isSameDay(day, selectedDate)
                 ? "bg-gray-100 dark:bg-gray-700"
                 : "bg-green-200/75 dark:bg-green-600"
@@ -224,7 +225,7 @@ const Calendar = () => {
             }}
           >
             <span className="number dark:text-white">{formattedDate}</span>
-            <div className="flex flex-row justify-center overflow-x-auto">
+            <div className=" justify-center overflow-x-auto w-full">
               {renderEvent(day)}
             </div>
           </div>
@@ -232,13 +233,13 @@ const Calendar = () => {
         day = addDays(day, 1);
       }
       rows.push(
-        <div className="row grid grid-cols-7 " key={day}>
+        <div className="row grid grid-cols-7" key={day}>
           {days}
         </div>
       );
       days = [];
     }
-    return <div className="body overflow-x-auto">{rows}</div>;
+    return <div className="body  overflow-x-auto">{rows}</div>;
   };
 
   const renderModal = () => {
@@ -291,7 +292,7 @@ const Calendar = () => {
 
   return (
     <>
-      <div className="calendar p-10 pt-24 bg-white dark:bg-slate-900 shadow-md ">
+      <div className="calendar p-10 pt-24 bg-white dark:bg-slate-900 shadow-md overflow-x-auto">
         {renderHeader()}
         {renderDays()}
         {renderCells()}

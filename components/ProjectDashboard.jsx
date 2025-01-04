@@ -11,7 +11,7 @@ const ProjectDashboard = () => {
     };
 
     return (
-        <div className="p-10 pt-24 font-sans bg-white dark:bg-gray-900 dark:text-white rounded-lg shadow-lg">
+        <div className="p-10 pt-24 font-sans bg-white dark:bg-gray-900 dark:text-white ">
             <h1 className="text-3xl font-bold mb-4 border-b-2 pb-2 border-gray-300 dark:border-gray-700">{project.title}</h1>
             <p className="mb-6 text-lg">{project.description}</p>
             
