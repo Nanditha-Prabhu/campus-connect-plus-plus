@@ -266,7 +266,6 @@ const StudentDashboard = () => {
     }
 
     // Proposal acceptance section for all the proposals submitted from project listing page
-
     const ProjectProposals = () => {
         const [proposals, setProposals] = useState([
             {
@@ -357,6 +356,101 @@ const StudentDashboard = () => {
         );
     };
     
+    //New Project creation section for faculty where they can create a new project by giving the details like project name, description, area of interests, skills required.
+    const ProjectCreation = () => {
+        const [formData, setFormData] = useState({
+            project: "",
+            description: "",
+            area: "",
+            skills: ""
+        });
+
+        const handleChange = (e) => {
+            setFormData({
+                ...formData,
+                [e.target.name]: e.target.value
+            });
+        };
+
+        const handleSubmit = (e) => {
+            e.preventDefault();
+            console.log(formData);
+        };
+
+        return (
+            <div className="p-12 rounded-lg shadow-lg bg-gray-100 dark:bg-gray-800">
+                <h1 className=" text-gray-900  dark:text-gray-100 text-lg md:text-2xl font-bold">Create New Project</h1>
+                <form onSubmit={handleSubmit} className="mx-auto mb-0 mt-8 max-w-md space-y-4">
+                    <div>
+                        <label className="dark:text-white" htmlFor="project">
+                            Project Name
+                        </label>
+                        <input
+                            required
+                            name="project"
+                            value={formData.project}
+                            onChange={handleChange}
+                            type="text"
+                            className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
+                        />
+                    </div>
+                    <div>
+                        <label className="dark:text-white" htmlFor="description">
+                            Description
+                        </label>
+                        <textarea
+                            required
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            type="text"
+                            className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
+                        />
+                    </div>
+                    <div>
+                        <label className="dark:text-white" htmlFor="area">
+                            Area of interest
+                        </label>
+                        <select
+                            required
+                            name="area"
+                            value={formData.area}
+                            onChange={handleChange}
+                            type="area"
+                            className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
+                        >
+                            <option value="">Select area of interest</option>
+                            <option value="AI">AI</option>
+                            <option value="ML">ML</option>
+                            <option value="Web Development">Web Development</option>
+                            <option value="App Development">App Development</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="dark:text-white" htmlFor="skills">
+                            Skills Required
+                        </label>
+                        <input
+                            required
+                            name="skills"
+                            value={formData.skills}
+                            onChange={handleChange}
+                            type="text"
+                            className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
+                        />
+                    </div>
+                    <div className='flex justify-center'>
+                        <button
+                            type="submit"
+                            className="rounded border border-gray-800 dark:border-green-200 bg-transparent hover:bg-green-400 px-5 py-2.5 text-sm font-medium text-slate-800 dark:text-white shadow active:bg-green-700"
+                        >
+                            Create Project
+                        </button>
+                    </div>
+                </form>
+            </div>
+        );
+    }
 
     return (
         <div className="dark:bg-gray-900 grid md:grid-cols-[25%_75%] gap-4 p-12 pt-24">
@@ -370,6 +464,7 @@ const StudentDashboard = () => {
                 {streakMapCard()}
                 {/* {recentActivityCard()} */}
                 {ProjectProposals()}
+                {ProjectCreation()}
             </div>
         </div>
     );
