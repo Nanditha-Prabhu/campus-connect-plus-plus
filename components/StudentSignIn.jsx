@@ -3,6 +3,8 @@ import { ArrowRight } from "lucide-react";
 import axios from "axios";
 import Loading from "./Loading";
 import { useNavigate } from "react-router-dom";
+import { verifyUserToken } from "./utils";
+
 
 export default function StudentSignUp() {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -11,6 +13,15 @@ export default function StudentSignUp() {
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
+    // check if user is already logged in
+    // if yes, redirect to dashboard
+    async function asyncfun() {
+      const isLoggedIn = await verifyUserToken();
+      if (isLoggedIn) {
+        navigate("/dashboard");
+      }
+    }
+    asyncfun();
     // Simulate loading for 2 seconds
     setTimeout(() => {
       setIsLoading(false);
@@ -33,8 +44,8 @@ export default function StudentSignUp() {
 
     try {
       console.log(formData);
-      await axios.post(`${BACKEND_URL}/users/student/login`, formData)
-        .then((res) => {
+      await 
+      axios.post(`${BACKEND_URL}/users/student/login`, formData).then((res) => {
           if (res.status === 200) {
             setResponse("Successful");
             localStorage.setItem("token", res.data.access_token);
@@ -42,15 +53,23 @@ export default function StudentSignUp() {
               navigate("/student-dashboard");
             }, 2000);
           }
-          else {
+          else if (res.status === 400) {
+            console.log(res.data)
+            setResponse(res.data.details);
+            setIsLoading(false);
+          } else {
             setResponse("Unsuccessful");
+            setIsLoading(false);
           }
         })
         .catch((error) => {
-          console.error("Error submitting form:", error);
+          // console.error("Error submitting form:", error);
+          setResponse("Unsuccessful");
+          setIsLoading(false);
         });
     } catch (error) {
       setResponse(null);
+      setIsLoading(false);
       console.error("Error submitting form:", error);
     }
   };

@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import Loading from "./Loading";
 
 export default function FindStudents() {
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
   const [formData, setFormData] = useState({
     areaOfInterest: "",
     skill: "",
@@ -25,7 +27,7 @@ export default function FindStudents() {
 
   const applyAreaOfInterest = async () => {
     try {
-      const r = await axios.get("http://localhost:8080/all_areas");
+      const r = await axios.get(`${BACKEND_URL}/search/all_areas`);
       setAreaOfInt(r.data);
       // console.log(r.data);
       // console.log(areaOfInt);
@@ -40,7 +42,7 @@ export default function FindStudents() {
 
   const applySkls = async () => {
     try {
-      const r = await axios.get("http://localhost:8080/all_skills");
+      const r = await axios.get(`${BACKEND_URL}/search/all_skills`);
       setSkls(r.data);
       //console.log(r.data);
       //console.log(skls);
@@ -58,9 +60,8 @@ export default function FindStudents() {
     event.preventDefault();
 
     try {
-      const r = await axios.post(
-        "http://localhost:8080/find_students",
-        formData
+      const r = await axios.get(
+        `${BACKEND_URL}/search/find_students?areaOfInterest=${formData.areaOfInterest}&skill=${formData.skill}`,
       );
       // console.log(r.data);
       const data = r.data;
@@ -145,7 +146,7 @@ export default function FindStudents() {
                 {skls &&
                   skls.map((item, idx) => {
                     return (
-                      <option id={item} name="skills" value={item}>
+                      <option id={item} key={idx} name="skills" value={item}>
                         {item}
                       </option>
                     );

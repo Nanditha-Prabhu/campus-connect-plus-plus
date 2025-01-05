@@ -7,41 +7,18 @@ import { MdDashboard } from "react-icons/md";
 import { PiProjectorScreenChartBold, PiStudentFill } from "react-icons/pi";
 import { RiTeamLine } from "react-icons/ri";
 import { LuLogIn, LuLogOut } from "react-icons/lu";
-import axios from "axios";
+import { verifyUserToken } from "./utils";
 
 
 export default function Sidebar({ isOpen }) {
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const [userLoggedIn, setUserLoggedIn] = useState(false);
 
   useEffect(() => {
-    async function verifyUserToken() {
-      const token = localStorage.getItem("token");
-      try {
-        await axios.get(`${BACKEND_URL}/users/verify_token`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((res) => {
-          if (res.status === 200) {
-            setUserLoggedIn(true);
-            console.log("User is logged in");
-          } else {
-            console.log("User is not logged in");
-            setUserLoggedIn(false);
-          }
-        })
-        .catch((error) => {
-          // console.error("Error verifying user token:", error);
-          setUserLoggedIn(false);
-        });
-      } catch (error) {
-        // console.error("Error verifying user token:", error);
-        setUserLoggedIn(false);
-      }
+    async function asyncfun() {
+      const isLoggedIn = await verifyUserToken();
+      setUserLoggedIn(isLoggedIn);
     }
-    verifyUserToken();
+    asyncfun();
   }, []);
 
   return (
