@@ -1,6 +1,6 @@
 // An editable/custom calendar inorder to add events and reminders
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PiArrowSquareLeftFill, PiArrowSquareRightFill } from "react-icons/pi";
 import { MdDelete } from "react-icons/md";
 import {
@@ -12,6 +12,8 @@ import {
   subMonths,
   parse,
 } from "date-fns";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 /**
  * Calendar component that displays a monthly calendar with selectable dates and events.
  *
@@ -23,6 +25,9 @@ import {
  */
 
 const Calendar = () => {
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  const urlParams = useParams();
+
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [meetings, setMeetings] = useState([]);
@@ -31,6 +36,21 @@ const Calendar = () => {
   const [eventType, setEventType] = useState("meeting");
   const [eventTitle, setEventTitle] = useState("");
 
+
+  // API call to get events
+  useEffect(() => {
+    axios.get(`${BACKEND_URL}/projects/${urlParams.project_name}/calendar/getEvents`)
+      .then((res) => {
+        if (res.status === 200) {
+          const events = res.data;
+          setMeetings(events.meetings);
+          setDeadlines(events.deadlines);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, []);
   /**
    * Renders the header of the calendar with navigation controls for previous and next month.
    *
@@ -96,13 +116,22 @@ const Calendar = () => {
 
   //function to delete an event
   const deleteEvent = (event) => {
-    if (event.type === "meeting") {
+    if (event.event_type === "meeting") {
+      console.log("meeting deleted");
       setMeetings(meetings.filter((e) => e !== event));
-    } else if (event.type === "deadline") {
+    } else if (event.event_type === "deadline") {
+      console.log("deadline deleted");
       setDeadlines(deadlines.filter((e) => e !== event));
     }
+    axios.delete(`${BACKEND_URL}/projects/${urlParams.project_name}/calendar/deleteEvent/${event.event_type}`, {
+        data: event
+      })
+      .then((res) => {
+        console.log(res.data);
+      }).catch((err) => {
+        console.error(err);
+      })
   };
-
   /**
    * Renders the cells of the calendar for the current month.
    *
@@ -133,29 +162,31 @@ const Calendar = () => {
    */
   const renderEvent = (day) => {
     const events = [...meetings, ...deadlines];
-    return events
-      .filter((e) => isSameDay(e.date, day))
+    return (events?.length > 0 && events
+      .filter((e) => (
+        isSameDay(format(e.event_date, "yyyy-MM-dd"), format(day, "yyyy-MM-dd"))
+      ))
       .map((e, index) => (
-      <div
-        key={index}
-        className={`event p-1 rounded w-fit mt-1 flex flex-row justify-between items-center text-left  ${
-        e.type === "meeting"
-          ? "bg-yellow-300 dark:bg-yellow-400"
-          : "bg-purple-300 dark:bg-purple-400"
-        }`}
-      >
-        {e.title}
-        <MdDelete
-        className="min-w-10"
-        onClick={(event) => {
-          event.stopPropagation();
-          deleteEvent(e);
-        }}
-        />
-        {/* we have to use anonymous function for deleteEvent else as soon as we add an event it will get deleted. */}
-        {/* if we press delete btn, even the modal was being shown. Thats why we stopped event propagation. */}
-      </div>
-      ));
+        <div
+          key={index}
+          className={`event p-1 rounded w-fit mt-1 flex flex-row justify-between items-center text-left  ${
+          e.event_type === "meeting"
+            ? "bg-yellow-300 dark:bg-yellow-400"
+            : "bg-purple-300 dark:bg-purple-400"
+          }`}
+        >
+          {e.event_title}
+          <MdDelete
+          className="min-w-10"
+          onClick={(event) => {
+            event.stopPropagation();
+            deleteEvent(e);
+          }}
+          />
+          {/* we have to use anonymous function for deleteEvent else as soon as we add an event it will get deleted. */}
+          {/* if we press delete btn, even the modal was being shown. Thats why we stopped event propagation. */}
+        </div>
+      )));
   };
 
   /**
@@ -186,13 +217,16 @@ const Calendar = () => {
     setEventTitle("");
   };
 
-  const handleEventSubmit = (day) => {
+  const handleEventSubmit = async (day) => {
     // setSelectedDate(day);
-    const newEvent = { date: selectedDate, type: eventType, title: eventTitle };
-    if (newEvent.type === "meeting" && newEvent.title !== "") {
+    const newEvent = { event_date: selectedDate, event_type: eventType, event_title: eventTitle };
+    if (newEvent.event_title !== "") {
       setMeetings([...meetings, newEvent]);
-    } else if (newEvent.type === "deadline" && newEvent.title !== "") {
-      setDeadlines([...deadlines, newEvent]);
+      await axios.put(`${BACKEND_URL}/projects/${urlParams.project_name}/calendar/addEvent/${newEvent.event_type}`, newEvent).then((res) => {
+        console.log(res.data);
+      }).catch((err) => {
+        console.error(err);
+      });
     }
     closeModal();
   };

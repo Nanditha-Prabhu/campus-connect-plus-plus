@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
 from database import get_mongodb_instance
-from schemas.projects import KanbanBoard, ProjectDetails
+from schemas.projects import KanbanBoard, ProjectDetails, CalenderEvent
 
 
 # Initialize variables
@@ -109,3 +109,30 @@ def move_item(project_name: str, from_task: str, to_task: str, item: str):
     db[project_name]['kanban'][from_task].delete_one({'item': item})
     db[project_name]['kanban'][to_task].insert_one({'item': item})
     return {"message": f"Success move"}
+
+
+########################### Project Calendar ############################
+@router.get("/{project_name}/calendar/getEvents", tags=["Project Calendar"])
+async def get_calendar(project_name: str):
+    meetings_list = list(db[project_name]['calendar']['meeting'].find({}, {'_id': False}))
+    deadline_list = list(db[project_name]['calendar']['deadline'].find({}, {'_id': False}))
+    data = {
+        'meetings': meetings_list,
+        'deadlines': deadline_list
+    }
+    return JSONResponse(content=data, status_code=200)
+
+
+@router.put("/{project_name}/calendar/addEvent/{event}", tags=["Project Calendar"])
+async def update_calender(project_name: str, event: str, event_details: CalenderEvent):
+    print(project_name, event, event_details)
+    db[project_name]['calendar'][event].insert_one(event_details.model_dump(mode='python'))
+    return JSONResponse(content={'message': "updated successfully"}, status_code=200)
+
+
+@router.delete("/{project_name}/calendar/deleteEvent/{event}", tags=["Project Calendar"])
+async def delete_event(project_name: str, event: str, event_details: CalenderEvent):
+    # Cation: Did not consider the duplicate event title
+    print(project_name, event, event_details)
+    db[project_name]['calendar'][event].delete_one(event_details.model_dump(mode='python'))
+    return JSONResponse(content={'message': "deleted successfully"}, status_code=200)

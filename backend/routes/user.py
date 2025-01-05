@@ -132,3 +132,24 @@ async def get_user(request: Request):
     token = request.headers.get("Authorization").split(" ")[1]
     user = decode_token(token)
     return JSONResponse(status_code=200, content=user)
+
+
+@router.put("/{user_name}/addProject")
+async def update_user(request: Request, user_name: str, project: str):
+    token = request.headers.get("Authorization").split(" ")[1]
+    user = decode_token(token)
+    db = get_database_instance()
+    query = """
+    MATCH (s:STUDENT {uid: $uid})
+    SET s.projects = s.projects + $project
+    RETURN s
+    """
+    if 'projects' not in user:
+        query = """
+            MATCH (s:STUDENT {uid: $uid})
+            SET s.projects = [$project]
+            RETURN s
+        """
+    result, meta = db.cypher_query(query, user)
+    db.close_connection()
+    return JSONResponse(status_code=200, content={"message": "Project Added Successfully"})

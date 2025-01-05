@@ -24,3 +24,9 @@ class ProjectDetails(BaseModel):
     team: List[str] = []
     # project_tasks: List[str] = []
     # project_resources: List[str] = []
+
+
+class CalenderEvent(BaseModel):
+    event_type: str
+    event_title: str
+    event_date: str
