@@ -14,41 +14,24 @@ const ProjectListing = () => {
 
     // The problem is that you are calling setProjects directly inside the component body, which causes an infinite re-render loop. To fix this, move the dummy project initialization inside a useEffect hook.
     useEffect(() => {
-        // Fetch all projects
-        async function fetchProjects() {
-            // get projects
-            await axios.get(`${BACKEND_URL}/projects/`)
-                .then((res) => {
-                    if (res.status === 200) {
-                        setProjects(res.data.projects);
-                    }
-                })
-                .catch(error => console.error('Error fetching projects:', error));
-            
+        // get projects
+        axios.get(`${BACKEND_URL}/projects/`)
+            .then((res) => {
+                if (res.status === 200) {
+                    setProjects(res.data.projects);
+                }
+            })
+            .catch(error => console.error('Error fetching projects:', error));
+        
             // get user projects
-            await axios.get(`${BACKEND_URL}/projects`)
-                .then(res => {
-                    if (res.status === 200) {
-                        setUserProjects(res.data.projects);
-                    }
-                })
-                .catch(error => console.error('Error fetching projects:', error));
-        }
-        fetchProjects();
+            axios.get(`${BACKEND_URL}/projects`)
+            .then(res => {
+                if (res.status === 200) {
+                    setUserProjects(res.data.projects);
+                }
+            })
+            .catch(error => console.error('Error fetching projects:', error));            
     }, []);
-
-    // useEffect(() => {
-    //     // Fetch all projects
-    //     axios.get('/api/projects')
-    //         .then(response => setProjects(response.data))
-    //         .catch(error => console.error('Error fetching projects:', error));
-
-    //     // Fetch user's projects
-    //     axios.get('/api/user/projects')
-    //         .then(response => setUserProjects(response.data))
-    //         .catch(error => console.error('Error fetching user projects:', error));
-    // }, []);
-
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);

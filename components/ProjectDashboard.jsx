@@ -46,13 +46,13 @@ const ProjectDashboard = () => {
             <p className="mb-6 text-lg">{project.description}</p>
             <div className="mb-6">
                 <h2 className="text-2xl font-semibold mb-2">Project Status</h2>
-                <p className={`text-lg p-2 rounded-md ${project.status.toLowerCase() === "completed" ? "bg-green-100 dark:bg-green-800" : project.status.toLowerCase() === "yet to start" ? "bg-yellow-100 dark:bg-yellow-300" : "bg-blue-100 dark:bg-blue-600"}`}>In Progress</p>
+                <p className={`text-lg p-2 rounded-md ${project.status?.toLowerCase() === "completed" ? "bg-green-100 dark:bg-green-800" : project.status?.toLowerCase() === "yet to start" ? "bg-yellow-100 dark:bg-yellow-300" : "bg-blue-100 dark:bg-blue-600"}`}>In Progress</p>
             </div>
             <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
                 <div className="mb-6 bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
                     <h2 className="text-2xl font-semibold mb-2">Team Members</h2>
                     <ul className="space-y-1">
-                        {project.teamMembers.map((member, index) => (
+                        {project.teamMembers?.map((member, index) => (
                             <li key={index} className=" pl-5 bg-gray-200 dark:bg-gray-800 p-2 rounded-md">{member}</li>
                         ))}
                     </ul>
@@ -61,7 +61,7 @@ const ProjectDashboard = () => {
                 <div className="mb-6 bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
                     <h2 className="text-2xl font-semibold mb-2">Mentors</h2>
                     <ul className="space-y-1">
-                        {project.mentors.map((mentor, index) => (
+                        {project.mentors?.map((mentor, index) => (
                             <li key={index} className=" pl-5 bg-gray-200 dark:bg-gray-800 p-2 rounded-md">{mentor}</li>
                         ))}
                     </ul>
