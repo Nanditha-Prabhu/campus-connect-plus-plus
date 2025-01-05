@@ -8,7 +8,8 @@ from utils import (
     hash_password, 
     create_access_token, 
     verify_password, 
-    verify_token
+    verify_token,
+    decode_token
 )
 from database import get_database_instance
 
@@ -17,15 +18,14 @@ from database import get_database_instance
 router = APIRouter(
     tags=["user"]
 )
-db = get_database_instance()
 
 # Variables
 fake_db = {}
 
 # Routes
-@router.get("/")
-def index():
-    return { "route": "User's Routes" }
+# @router.get("/")
+# def index():
+#     return { "route": "User's Routes" }
 
 
 @router.post("/student/register")
@@ -35,6 +35,7 @@ async def create_student_user(user: StudentCreationModel):
     # MATCH (u:User {username: $username})
     # RETURN u
     # """
+    db = get_database_instance()
     uid = user.email_id.split("@")[0]
     query = """
     MATCH (s:STUDENT {uid: $uid})
@@ -42,6 +43,7 @@ async def create_student_user(user: StudentCreationModel):
     """
     result, meta = db.cypher_query(query, {"uid": uid})
     if result:
+        db.close_connection()
         raise HTTPException(status_code=400, detail="User already exists")
     # hash password and create user
     user.password = hash_password(user.password)
@@ -50,12 +52,14 @@ async def create_student_user(user: StudentCreationModel):
     CREATE (s:STUDENT {student_name: $student_name, usn: $usn, uid: $uid, email_id: $email_id, department: $department, area_of_interest: $aoi, semester: $sem, skills: $skills, password: $password})
     """
     result, meta = db.cypher_query(query, user.model_dump())
+    db.close_connection()
     return JSONResponse(status_code=200, content={"message": "User Created Successfully"})
 
 
 @router.post("/faculty/register")
 async def create_faculty_user(user: FactultyCreationModel):
     # check if user already exists
+    db = get_database_instance()
     uid = user.email_id.split("@")[0]
     query = """
     MATCH (s:FACULTY {uid: $uid})
@@ -66,6 +70,7 @@ async def create_faculty_user(user: FactultyCreationModel):
     print(result)
     if result:
         print("User already exists")
+        db.close_connection()
         return HTTPException(status_code=400, detail="User already exists")
     # hash password and create user
     user.password = hash_password(user.password)
@@ -74,32 +79,40 @@ async def create_faculty_user(user: FactultyCreationModel):
     CREATE (f:FACULTY {name: $name, email_id: $email_id, department: $department, area_of_interest: $aoi, designation: $designation, password: $password, uid: $uid})
     """
     result, meta = db.cypher_query(query, user.model_dump())
+    db.close_connection()
     return JSONResponse(status_code=200, content={"message": "User Created Successfully"})
 
 
 @router.post("/student/login")
-def login(form_data: UserAuth):
+def student_login(form_data: UserAuth):
+    db = get_database_instance()
     query = "MATCH (s:STUDENT {uid: $uid}) RETURN s"
     result, meta = db.cypher_query(query, {"uid": form_data.email_id.split("@")[0]})
     if result == [] or not verify_password(form_data.password, result[0][0].get("password")):
+        db.close_connection()
         raise HTTPException(status_code=400, detail="Invalid Credentials")
     token_model = TokenModel(
-        access_token=create_access_token({"sub": form_data.email_id}),
+        access_token=create_access_token({"sub": result[0][0].get("uid")}),
         token_type="bearer"
     )
+    db.close_connection()
     # return JSONResponse(status_code=200, content={"message": "Login Successful"})
     return token_model 
 
+
 @router.post("/faculty/login")
-def login(form_data: UserAuth):
+def faculty_login(form_data: UserAuth):
+    db = get_database_instance()
     query = "MATCH (s:STUDENT {uid: $uid}) RETURN s"
     result, meta = db.cypher_query(query, {"uid": form_data.email_id.split("@")[0]})
     if result == [] or not verify_password(form_data.password, result[0][0].get("password")):
+        db.close_connection()
         raise HTTPException(status_code=400, detail="Invalid Credentials")
     token_model = TokenModel(
-        access_token=create_access_token({"sub": form_data.email_id}),
+        access_token=create_access_token({"sub": result[0][0].get("uid")}),
         token_type="bearer"
     )
+    db.close_connection()
     # return JSONResponse(status_code=200, content={"message": "Login Successful"})
     return token_model 
 
@@ -112,3 +125,10 @@ def token_verification(request: Request):
     bearer, authorization_token = authorization.split(" ")
     verify_token(authorization_token)
     return { "message": "Token is Valid" }
+
+
+@router.get("/get_user")
+async def get_user(request: Request):
+    token = request.headers.get("Authorization").split(" ")[1]
+    user = decode_token(token)
+    return JSONResponse(status_code=200, content=user)

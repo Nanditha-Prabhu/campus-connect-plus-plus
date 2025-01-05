@@ -110,7 +110,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/calendar",
+    path: "/projects/:project_name/calendar",
     element: (
       <>
         <Navbar />
@@ -121,7 +121,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/kanban",
+    path: "/projects/:project_name/kanban",
     element: (
       <>
         <Navbar />
@@ -176,7 +176,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/project",
+    path: "/project/:project_name",
     element: (
       <>
         <Navbar />

@@ -4,8 +4,10 @@ import 'react-calendar-heatmap/dist/styles.css';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 // import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react';
+import axios from 'axios';
 
 const StudentDashboard = () => {
+    const BACKEND_URL = "http://localhost:8000";
     // User Info
     // User Projects
     // Engaged Labs
@@ -359,10 +361,13 @@ const StudentDashboard = () => {
     //New Project creation section for faculty where they can create a new project by giving the details like project name, description, area of interests, skills required.
     const ProjectCreation = () => {
         const [formData, setFormData] = useState({
-            project: "",
+            title: "",
             description: "",
             area: "",
-            skills: ""
+            skills: "",
+            created_at: "",
+            created_by: "",
+            project_status: "yet to start",
         });
 
         const handleChange = (e) => {
@@ -372,9 +377,38 @@ const StudentDashboard = () => {
             });
         };
 
-        const handleSubmit = (e) => {
+        const handleSubmit = async (e) => {
             e.preventDefault();
+            let user;
+            // get user details
+            await axios.get(`${BACKEND_URL}/users/get_user`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                })
+                .then((res) => {
+                    user = res.data;
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+            console.log(user);
+            
+            // update created_at field
+            setFormData({ ...formData, created_at: new Date().toISOString() });
+            // update created_by field
+            setFormData({ ...formData, created_by: user.uid });
+
             console.log(formData);
+            // API call to create project
+            await axios.post(`${BACKEND_URL}/projects/${formData.title}`, formData)
+                .then((res) => {
+                    console.log(res)
+                    setFormData({ ...formData, ...res.data });
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
         };
 
         return (
@@ -387,8 +421,8 @@ const StudentDashboard = () => {
                         </label>
                         <input
                             required
-                            name="project"
-                            value={formData.project}
+                            name="title"
+                            value={formData.title}
                             onChange={handleChange}
                             type="text"
                             className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"

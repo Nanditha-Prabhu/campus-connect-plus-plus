@@ -1,15 +1,44 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+
 
 const ProjectDashboard = () => {
-    const project = {
-        title: "Project Title",
-        description: "This is a brief description of the project.",
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+    const urlParams = useParams();
+    
+    // const project = {
+    //     title: "Project Title",
+    //     description: "This is a brief description of the project.",
+    //     status: "yet to start",
+    //     teamMembers: ["Member 1", "Member 2", "Member 3"],
+    //     mentors: ["Mentor 1", "Mentor 2"],
+    //     kanbanLink: "/kanban",
+    //     calendarLink: "/calendar"
+    // };
+    const [project, setProjectDetails] = useState({
+        title: "",
+        description: "",
         status: "yet to start",
-        teamMembers: ["Member 1", "Member 2", "Member 3"],
-        mentors: ["Mentor 1", "Mentor 2"],
-        kanbanLink: "/kanban",
-        calendarLink: "/calendar"
-    };
+        teamMembers: [],
+        mentors: [],
+        kanbanLink: `/projects/${urlParams.project_name}/kanban`,
+        calendarLink: `/projects/${urlParams.project_name}/calendar`
+    })
+
+    useEffect(() => {
+        async function fetchData() {
+            // Fetch project details
+            console.log(urlParams.project_name)
+            await axios.get(`${BACKEND_URL}/projects/${urlParams.project_name}`)
+                .then(response => {
+                    console.log(response);
+                    setProjectDetails({...project, ...response.data})
+                })
+                .catch(error => console.error('Error fetching project details:', error));
+        }
+        fetchData();
+    }, []);
 
     return (
         <div className="p-10 pt-24 font-sans bg-white dark:bg-gray-900 dark:text-white ">

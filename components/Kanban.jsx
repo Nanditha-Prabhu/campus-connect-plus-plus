@@ -1,10 +1,12 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { BsFillRocketTakeoffFill } from "react-icons/bs";
+import { useParams } from 'react-router-dom';
 
 const Kanban = () => {
     // Variables
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+    const urlParams = useParams();
 
     // States
     const [tasks, setTasks] = useState({
@@ -22,7 +24,7 @@ const Kanban = () => {
     // Make API calls
     useEffect(() => {
         async function fetchData() {
-            await axios.get(`${BACKEND_URL}/kanban/all`)
+            await axios.get(`${BACKEND_URL}/projects/${urlParams.project_name}/kanban`)
                 .then((res) => {
                     const data = res.data;
                     console.log(data)
@@ -45,7 +47,7 @@ const Kanban = () => {
             ...tasks,
             [column]: [...tasks[column], {'item': task}]
         });
-        await axios.get(`${BACKEND_URL}/kanban/${column}/add?item=${task}`)
+        await axios.get(`${BACKEND_URL}/projects/${urlParams.project_name}/kanban/${column}/add?item=${task}`)
             .then((res) => {
                 console.log(res.data);
             })
@@ -66,7 +68,7 @@ const Kanban = () => {
             ...tasks,
             [column]: newTasks
         });
-        await axios.get(`${BACKEND_URL}/kanban/${column}/remove?item=${item['item']}`)
+        await axios.get(`${BACKEND_URL}/projects/${urlParams.project_name}/kanban/${column}/remove?item=${item['item']}`)
             .then((res) => {
                 console.log("Removed", res.data);
             })
@@ -85,7 +87,7 @@ const Kanban = () => {
             [from]: newTasks,
             [to]: [...tasks[to], task]
         });
-        await axios.get(`${BACKEND_URL}/kanban/${from}/to/${to}/move?item=${task['item']}`)
+        await axios.get(`${BACKEND_URL}/projects/${urlParams.project_name}/kanban/${from}/to/${to}/move?item=${task['item']}`)
             .then((res) => {
                 console.log("Moved", res.data);
             })
@@ -102,8 +104,10 @@ const Kanban = () => {
                     <div key={column} className="p-4 rounded-lg dark:bg-gray-800 bg-gray-200">
                         <h2 className="text-xl text-center font-semibold mb-2 capitalize">{column}</h2>
                         <ul>
-                            {tasks[column].map((task, index) => (
-                                <li key={index} className="p-2 rounded mb-2 dark:bg-gray-700 bg-gray-300 flex justify-between items-center">
+                            {tasks[column].map((task, index) => {
+                                if (task["item"] === "") 
+                                    return null;
+                                return <li key={index} className="p-2 rounded mb-2 dark:bg-gray-700 bg-gray-300 flex justify-between items-center">
                                     {task["item"]}
                                     <div>
                                         {column !== 'done' && (
@@ -130,7 +134,7 @@ const Kanban = () => {
                                         </button>
                                     </div>
                                 </li>
-                            ))}
+                            })}
                         </ul>
                         <button
                             className="bg-green-400 hover:bg-green-500 text-white font-bold py-2 px-4 w-full rounded"
