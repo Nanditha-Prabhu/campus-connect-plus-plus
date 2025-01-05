@@ -4,6 +4,7 @@ const ProjectDashboard = () => {
     const project = {
         title: "Project Title",
         description: "This is a brief description of the project.",
+        status: "yet to start",
         teamMembers: ["Member 1", "Member 2", "Member 3"],
         mentors: ["Mentor 1", "Mentor 2"],
         kanbanLink: "/kanban",
@@ -14,7 +15,10 @@ const ProjectDashboard = () => {
         <div className="p-10 pt-24 font-sans bg-white dark:bg-gray-900 dark:text-white ">
             <h1 className="text-3xl font-bold mb-4 border-b-2 pb-2 border-gray-300 dark:border-gray-700">{project.title}</h1>
             <p className="mb-6 text-lg">{project.description}</p>
-            
+            <div className="mb-6">
+                <h2 className="text-2xl font-semibold mb-2">Project Status</h2>
+                <p className={`text-lg p-2 rounded-md ${project.status.toLowerCase() === "completed" ? "bg-green-100 dark:bg-green-800" : project.status.toLowerCase() === "yet to start" ? "bg-yellow-100 dark:bg-yellow-300" : "bg-blue-100 dark:bg-blue-600"}`}>In Progress</p>
+            </div>
             <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
                 <div className="mb-6 bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
                     <h2 className="text-2xl font-semibold mb-2">Team Members</h2>
