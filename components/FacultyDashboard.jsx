@@ -2,8 +2,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+// import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react';
 
-const Dashboard = () => {
+const StudentDashboard = () => {
     // User Info
     // User Projects
     // Engaged Labs
@@ -174,7 +176,7 @@ const Dashboard = () => {
 
         return (
             <div className="p-12 rounded-lg shadow-lg bg-gray-100 dark:bg-gray-800">
-                {/* <h1 className="text-xl p-4 text-gray-900 dark:text-white font-semibold">Analytics</h1> */}
+                <h1 className=" text-gray-900  dark:text-gray-100 text-lg md:text-2xl p-2 font-bold">Analytics</h1>
                 <div className="grid md:grid-cols-2 gap-4">
                     {analyticsData.map((data, key) => (
                         <div key={key} className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg text-center">
@@ -263,20 +265,114 @@ const Dashboard = () => {
         );
     }
 
+    // Proposal acceptance section for all the proposals submitted from project listing page
+
+    const ProjectProposals = () => {
+        const [proposals, setProposals] = useState([
+            {
+                project: "Project Zero",
+                proposals: [
+                    {
+                        title: "Proposal 1",
+                        description: "This is a proposal",
+                        status: "Pending"
+                    },
+                    {
+                        title: "Proposal 2",
+                        description: "This is a proposal",
+                        status: "Pending"
+                    }
+                ]
+            },
+            {
+                project: "Project One",
+                proposals: [
+                    {
+                        title: "Proposal 3",
+                        description: "This is a proposal",
+                        status: "Pending"
+                    },
+                    {
+                        title: "Proposal 4",
+                        description: "This is a proposal",
+                        status: "Pending"
+                    }
+                ]
+            }
+        ]);
+
+        const handleProposalAction = (projectIndex, proposalIndex, action) => {
+            const updatedProposals = [...proposals];
+            updatedProposals[projectIndex].proposals[proposalIndex].status = action;
+            setProposals(updatedProposals);
+        };
+
+        return (
+            <div className="p-12 rounded-lg shadow-lg bg-gray-100 dark:bg-gray-800">
+                <h1 className=" text-gray-900  dark:text-gray-100 text-lg md:text-2xl font-bold">Project Proposal Submissions</h1>
+                <p className=' text-black dark:text-gray-500 mb-4'>You can accept or reject the project proposal for each project.</p>
+                {proposals.map((project, projectIndex) => (
+                    <div key={projectIndex} className=" bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg mb-4">
+                        <button
+                            className="text-gray-900 dark:text-white w-full focus:outline-none"
+                            onClick={() => {
+                                const updatedProposals = [...proposals];
+                                updatedProposals[projectIndex].isOpen = !updatedProposals[projectIndex].isOpen;
+                                setProposals(updatedProposals);
+                            }}
+                        >
+                            <div className="flex flex-row justify-between items-center w-full">
+                                <h2 className="text-lg md:text-xl text-gray-900 dark:text-white font-semibold">{project.project}</h2>
+                                <p>{project.isOpen ? '-' : '+'}</p>
+                            </div>
+                        </button>
+                        {project.isOpen && (
+                            <div className="mt-4 space-y-4">
+                                {project.proposals.map((proposal, proposalIndex) => (
+                                    <div key={proposalIndex} className="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg p-4">
+                                        <h1 className="text-lg md:text-xl text-gray-900 dark:text-white font-semibold">{proposal.title}</h1>
+                                        <p className="md:text-lg text-gray-900 dark:text-gray-300">{proposal.description}</p>
+                                        <p className="md:text-lg text-gray-900 dark:text-gray-300">Status: {proposal.status}</p>
+                                        <div className="flex space-x-4 mt-2">
+                                            <button
+                                                className="bg-green-500 text-white px-4 py-2 rounded"
+                                                onClick={() => handleProposalAction(projectIndex, proposalIndex, 'Accepted')}
+                                            >
+                                                Accept
+                                            </button>
+                                            <button
+                                                className="bg-red-500 text-white px-4 py-2 rounded"
+                                                onClick={() => handleProposalAction(projectIndex, proposalIndex, 'Rejected')}
+                                            >
+                                                Reject
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+    
+
     return (
         <div className="dark:bg-gray-900 grid md:grid-cols-[25%_75%] gap-4 p-12 pt-24">
             <div>
                 {userDetailsCard()}
             </div>
             <div className="space-y-4">
-                {userMetrics()}
                 {userAnaltyicsCard()}
+                {userMetrics()}
                 {/* {userProjectsCard()} */}
                 {streakMapCard()}
                 {/* {recentActivityCard()} */}
+                {ProjectProposals()}
             </div>
         </div>
     );
 };
 
-export default Dashboard;
+export default StudentDashboard;

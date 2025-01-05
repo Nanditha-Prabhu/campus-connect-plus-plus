@@ -40,7 +40,7 @@ export default function StudentSignUp() {
         setResponse("Successful");
         localStorage.setItem("token", data.access_token);
         setTimeout(() => {
-          navigate("/dashboard");
+          navigate("/student-dashboard");
         }, 2000);
       } else {
         setResponse("Unsuccessful");

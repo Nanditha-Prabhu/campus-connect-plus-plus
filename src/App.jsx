@@ -15,7 +15,8 @@ import KnowTeamMembers from "../components/KnowTeamMembers";
 import Statistics from "../components/Statistics";
 import Calendar from "../components/Calendar";
 import Kanban from "../components/Kanban";
-import Dashboard from "../components/Dashboard";
+import StudentDashboard from "../components/StudentDashboard";
+import FacultyDashboard from "../components/FacultyDashboard";
 import ProjectDashboard from "../components/ProjectDashboard";
 import ProjectListing from "../components/ProjectListing";
 
@@ -131,12 +132,23 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/dashboard",
+    path: "/student-dashboard",
     element: (
       <>
         <Navbar />
         <Sidebar />
-        <Dashboard />
+        <StudentDashboard />
+        <Footer />
+      </>
+    ),
+  },
+  {
+    path: "/faculty-dashboard",
+    element: (
+      <>
+        <Navbar />
+        <Sidebar />
+        <FacultyDashboard />
         <Footer />
       </>
     ),
