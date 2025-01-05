@@ -72,25 +72,25 @@ const ProjectListing = () => {
                         <p className="m-0 mb-2 text-gray-800 dark:text-gray-300">{project.description}</p>
                         <button
                             onClick={() => alert('View details')}
-                            className="cursor-pointer rounded border border-gray-800 dark:border-yellow-200 bg-yellow-400 hover:bg-yellow-600 px-5 py-2.5 text-sm font-medium text-slate-800 dark:text-white shadow  active:bg-yellow-700 mr-2 mb-2 sm:mb-0"
+                            className="cursor-pointer rounded border border-gray-800 dark:border-yellow-200 bg-yellow-400 hover:bg-yellow-500 px-5 py-2.5 text-sm font-medium text-slate-800 dark:text-white shadow  active:bg-yellow-700 mr-2 mb-2 sm:mb-0"
                         >
                             View Details
                         </button>
                         <button
                             onClick={() => handleApply(project.id)}
-                            className=" cursor-pointer rounded border border-gray-800 dark:border-green-200 bg-green-400 hover:bg-green-600 px-5 py-2.5 text-sm font-medium text-slate-800 dark:text-white shadow  active:bg-green-700"
+                            className=" cursor-pointer rounded border border-gray-800 dark:border-green-200 bg-green-400 hover:bg-green-500 px-5 py-2.5 text-sm font-medium text-slate-800 dark:text-white shadow  active:bg-green-700"
                         >
                             Submit Proposal
                         </button>
                     </li>
                 ))}
             </ul>
-            <h2 className="text-xl text-gray-700">Your Projects</h2>
+            <h2 className="text-lg dark:text-white font-semibold sm:text-2xl text-center mb-5">Your Projects</h2>
             <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {userProjects.map(project => (
-                    <li key={project.id} className="mb-5 p-2 border border-gray-300 rounded">
-                        <h3 className="m-0 mb-2 text-lg">{project.name}</h3>
-                        <p className="m-0 mb-2 text-gray-600">{project.description}</p>
+                    <li key={project.id} className="border border-gray-300 mb-6 bg-gray-100 dark:bg-gray-700 p-4 rounded-md">
+                        <h3 className="m-0 mb-2 text-lg font-semibold">{project.name}</h3>
+                        <p className="m-0 mb-2 text-gray-800 dark:text-gray-300">{project.description}</p>
                         <button
                             onClick={() => alert('View details')}
                             href={project.calendarLink} target="_blank" rel="noopener noreferrer"
@@ -100,13 +100,13 @@ const ProjectListing = () => {
                         </button>
                         <button
                             onClick={() => alert('Submit proposal')}
-                            className="px-4 py-2 border border-gray-800 dark:border-green-200 bg-green-400 hover:bg-yellow-400 text-slate-800 dark:text-white rounded cursor-pointer mr-2 mb-2 sm:mb-0"
+                            className="px-5 py-2.5 border border-gray-800 dark:border-green-200 bg-green-400 hover:bg-green-500 text-sm font-medium text-slate-800 dark:text-white rounded cursor-pointer mr-2 mb-2 sm:mb-0"
                         >
                             Calendar
                         </button>
                         <button
                             onClick={() => alert('Submit proposal')}
-                            className="px-4 py-2 border border-gray-800 dark:border-yellow-200 bg-yellow-400 hover:bg-yellow-600 text-slate-800 dark:text-white rounded cursor-pointer"
+                            className="px-5 py-2.5 border border-gray-800 dark:border-yellow-200 bg-yellow-400 hover:bg-yellow-500 text-sm font-medium text-slate-800 dark:text-white rounded cursor-pointer"
                         >
                             Kanban Board
                         </button>
