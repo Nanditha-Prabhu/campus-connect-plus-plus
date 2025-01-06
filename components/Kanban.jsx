@@ -98,6 +98,7 @@ const Kanban = () => {
 
     return (
         <div className=" p-16 pt-24 dark:bg-gray-900 dark:text-white bg-white text-black">
+            <h1 className="text-5xl text-center font-bold mb-4 underline">{urlParams.project_name}</h1>
             <h1 className="text-3xl text-center font-bold mb-4">Kanban Board</h1>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {['todo', 'inProgress', 'done'].map((column) => (

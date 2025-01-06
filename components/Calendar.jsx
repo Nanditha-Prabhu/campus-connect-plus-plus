@@ -62,6 +62,9 @@ const Calendar = () => {
 
     return (
       <>
+        <h1 className="text-3xl dark:text-white font-bold sm:text-5xl text-center mb-5 underline">
+          {urlParams.project_name}
+        </h1>
         <h1 className="text-2xl dark:text-white font-bold sm:text-3xl text-center mb-5">
           Calendar of Events
         </h1>
