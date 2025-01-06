@@ -8,6 +8,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const AIResearchAssistant = () => {
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
     const [query, setQuery] = useState('');
     const [papers, setPapers] = useState([]);
     const [numPapers, setNumPapers] = useState(5);
@@ -16,7 +18,7 @@ const AIResearchAssistant = () => {
     const handleSearch = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`/api/search?query=${query}`);
+            const response = await axios.get(`${BACKEND_URL}/ai/search?query=${query}&numPapers=${numPapers}`);
             setPapers(response.data);
         } catch (error) {
             console.error('Error fetching research papers:', error);
@@ -25,11 +27,12 @@ const AIResearchAssistant = () => {
     };
 
     const handleSummarize = async (paperId) => {
+        console.log('Summarizing paper:', paperId);
         try {
             const response = await axios.get(`/api/summarize?paperId=${paperId}`);
-            const updatedPapers = papers.map(paper =>
-                paper.id === paperId ? { ...paper, summary: response.data.summary } : paper
-            );
+            // const updatedPapers = papers.map(paper =>
+            //     paper.id === paperId ? { ...paper, summary: resnum_resultsponse.data.summary } : paper
+            // );
             setPapers(updatedPapers);
         } catch (error) {
             console.error('Error summarizing paper:', error);
@@ -66,13 +69,13 @@ const AIResearchAssistant = () => {
                 </button>
             </div>
             <div className="mt-4">
-                {papers.map((paper) => (
-                    <div key={paper.id} className="border border-gray-300 p-4 rounded mb-4 dark:bg-gray-800 dark:border-gray-700">
+                {papers.map((paper, idx) => (
+                    <div key={idx} className="border border-gray-300 p-4 rounded mb-4 dark:bg-gray-800 dark:border-gray-700">
                         <h2 className="text-2xl font-semibold">{paper.title}</h2>
                         <p className="text-gray-700 dark:text-gray-300">{paper.abstract}</p>
                         <div className="mt-2">
-                            <a href={paper.pageLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 dark:text-blue-300 underline mr-2">View Page</a>
-                            <a href={paper.paperLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 dark:text-blue-300 underline">View Paper</a>
+                            <a href={paper.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 dark:text-blue-300 underline mr-2">View Page</a>
+                            <a href={paper['pdf-link']} target="_blank" rel="noopener noreferrer" className="text-blue-500 dark:text-blue-300 underline">View Paper</a>
                         </div>
                         <button
                             onClick={() => handleSummarize(paper.id)}
