@@ -19,6 +19,7 @@ import StudentDashboard from "../components/StudentDashboard";
 import FacultyDashboard from "../components/FacultyDashboard";
 import ProjectDashboard from "../components/ProjectDashboard";
 import ProjectListing from "../components/ProjectListing";
+import AIResearchAssistant from "../components/AIResearchAssistant";
 
 const router = createBrowserRouter([
   {
@@ -193,6 +194,17 @@ const router = createBrowserRouter([
         <Navbar />
         <Sidebar />
         <ProjectListing />
+        <Footer />
+      </>
+    ),
+  },
+  {
+    path: "/ai-research-assistant",
+    element: (
+      <>
+        <Navbar />
+        <Sidebar />
+        <AIResearchAssistant />
         <Footer />
       </>
     ),

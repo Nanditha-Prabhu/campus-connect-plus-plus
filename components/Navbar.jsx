@@ -7,7 +7,7 @@ export default function Navbar() {
   return (
     <>
       <header className="z-30 fixed w-screen bg-slate-200 dark:bg-gray-800">
-        <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto  px-4 sm:px-6 lg:px-8">
           <div className="flex flex-row mx-auto h-16 items-center justify-between">
             <div className="text-center">
               <button

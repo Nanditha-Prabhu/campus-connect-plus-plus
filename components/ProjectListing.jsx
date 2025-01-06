@@ -154,7 +154,7 @@ const ProjectListing = () => {
                           id="proposal"
                           name="proposal"
                           rows="4"
-                          className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                          className="mt-1 block w-full p-2 border dark:bg-gray-800 dark:border-gray-700 border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
                           placeholder="Write your proposal here..."
                         ></textarea>
                       </div>
@@ -198,7 +198,7 @@ const ProjectListing = () => {
                 placeholder="Search projects..."
                 value={searchTerm}
                 onChange={handleSearch}
-                className="w-full p-2 mb-5 rounded border border-gray-300 text-black"
+                className="w-full p-2 mb-5 rounded border dark:bg-gray-800 dark:border-gray-700 border-gray-300 text-black"
             />
             <h2 className="text-lg dark:text-white font-semibold sm:text-2xl text-center mb-5">Available Projects</h2>
             <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
