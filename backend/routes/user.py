@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 # Schemas
 from schemas.user import StudentCreationModel, FactultyCreationModel
 from schemas.auth import TokenModel, UserAuth
+from schemas.projects import ProjectProposal
 # Utils
 from utils import (
     hash_password, 
@@ -162,11 +163,13 @@ async def get_user_projects(request: Request):
     return JSONResponse(status_code=200, content={"projects": projects})
 
 
-@router.put("/{user_name}/addProject")
-async def update_user(request: Request, user_name: str, project: str):
-    token = request.headers.get("Authorization").split(" ")[1]
-    user = decode_token(token)
+@router.put("/{student_name}/addProject")
+async def update_user(request: Request, student_name: str, proposal: ProjectProposal):
+    # token = request.headers.get("Authorization").split(" ")[1]
+    # user = decode_token(token)
     db = get_database_instance()
+    user, _ = db.cypher_query("MATCH (s:STUDENT {student_name: $student_name}) RETURN s", { "student_name": student_name })
+    user = user[0][0]
     query = """
     MATCH (s:STUDENT {uid: $uid})
     SET s.projects = s.projects + $project
@@ -178,6 +181,53 @@ async def update_user(request: Request, user_name: str, project: str):
             SET s.projects = [$project]
             RETURN s
         """
+    result, meta = db.cypher_query(query, { 'uid': user.get('uid')})
+    db.close_connection()
+    mdb = get_mongodb_instance('faculty')
+    mdb[proposal.faculty_name]['proposals'][proposal.student_name].update_one(
+        { 'student_name': proposal.student_name },
+        { '$set': { 'status': 'ACCEPTED' } }
+    )
+    return JSONResponse(status_code=200, content={"message": "Project Added Successfully"})
+
+
+@router.get("/getUserActivities")
+async def get_user_activities(request: Request):
+    token = request.headers.get("Authorization")
+    if token is None:
+        raise HTTPException(status_code=401, detail="Invalid Token")
+    token = token.split(" ")[1]
+    user = decode_token(token)
+    db = get_database_instance()
+    query = """
+    MATCH (s:STUDENT {uid: $uid})
+    RETURN s.activities
+    """
+    result, meta = db.cypher_query(query, { "uid": user.get("uid") })
+    db.close_connection()
+    return JSONResponse(status_code=200, content={"activities": result[0][0]})
+
+
+@router.put("/updateActivities")
+async def update_user_activities(request: Request, user_name: str, activity: str):
+    token = request.headers.get("Authorization")
+    if token is None:
+        raise HTTPException(status_code=401, detail="Invalid Token")
+    user = decode_token(token)
+    db = get_database_instance()
+    query = """
+    MATCH (s:STUDENT {uid: $uid})
+    SET s.activities = s.activities + $activity
+    RETURN s
+    """
+    if 'activities' not in user:
+        query = """
+            MATCH (s:STUDENT {uid: $uid})
+            SET s.activities = [$activity]
+            RETURN s
+        """
     result, meta = db.cypher_query(query, user)
     db.close_connection()
-    return JSONResponse(status_code=200, content={"message": "Project Added Successfully"})
+    return JSONResponse(status_code=200, content={"message": "Activity Added Successfully"})
+
+

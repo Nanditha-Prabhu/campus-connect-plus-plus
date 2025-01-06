@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Dict
+from datetime import datetime
 
 
 class KanbanBoard(BaseModel):
@@ -30,3 +31,12 @@ class CalenderEvent(BaseModel):
     event_type: str
     event_title: str
     event_date: str
+
+
+class ProjectProposal(BaseModel):
+    project_name: str
+    faculty_name: str
+    student_name: str
+    proposal_text: str
+    status: str = "PENDING"
+    created_at: str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
