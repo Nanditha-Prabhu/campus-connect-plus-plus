@@ -1,6 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import users_router, statistics_router, search_router, projects_router, kanban_router
+from routes import (
+    users_router, 
+    statistics_router, 
+    search_router, 
+    projects_router, 
+    kanban_router,
+    ai_router
+)
 
 
 # Create FastAPI instance
@@ -20,4 +27,5 @@ app.include_router(users_router, prefix="/users")
 app.include_router(search_router, prefix="/search")
 app.include_router(projects_router, prefix="/projects")
 app.include_router(kanban_router, prefix="/kanban")
+app.include_router(ai_router, prefix="/ai")
 app.include_router(statistics_router, prefix="/statistics")
