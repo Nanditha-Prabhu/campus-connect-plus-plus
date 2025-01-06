@@ -23,14 +23,18 @@ const ProjectListing = () => {
             })
             .catch(error => console.error('Error fetching projects:', error));
         
-            // get user projects
-            axios.get(`${BACKEND_URL}/projects/`)
-            .then(res => {
-                if (res.status === 200) {
-                    setUserProjects(res.data.projects);
-                }
-            })
-            .catch(error => console.error('Error fetching projects:', error));            
+        // get user projects
+        axios.get(`${BACKEND_URL}/users/get_user_projects`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+        .then(res => {
+            if (res.status === 200) {
+                setUserProjects(res.data.projects);
+            }
+        })
+        .catch(error => console.error('Error fetching projects:', error));            
     }, []);
 
     const handleSearch = (event) => {

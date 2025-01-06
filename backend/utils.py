@@ -53,7 +53,7 @@ def decode_token(token: str):
         if uid is None:
             raise HTTPException(status_code=403, detail="Token is Invalid or Expired")
         query = """
-        MATCH (s:STUDENT {uid: $uid})
+        MATCH (s {uid: $uid})
         RETURN s
         """
         result, meta = db.cypher_query(query, {"uid": uid})

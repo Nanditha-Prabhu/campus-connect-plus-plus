@@ -27,7 +27,7 @@ export default function FacultySignUp() {
     async function asyncfun() {
       const isLoggedIn = await verifyUserToken();
       if (isLoggedIn) {
-        navigate("/dashboard");
+        navigate("/faculty-dashboard");
       }
     }
     asyncfun();

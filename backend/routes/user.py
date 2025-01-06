@@ -11,8 +11,9 @@ from utils import (
     verify_token,
     decode_token
 )
-from database import get_database_instance
+from database import get_database_instance, get_mongodb_instance
 
+mongodb = get_mongodb_instance('projects')
 
 # Router
 router = APIRouter(
@@ -103,7 +104,7 @@ def student_login(form_data: UserAuth):
 @router.post("/faculty/login")
 def faculty_login(form_data: UserAuth):
     db = get_database_instance()
-    query = "MATCH (s:STUDENT {uid: $uid}) RETURN s"
+    query = "MATCH (s:FACULTY {uid: $uid}) RETURN s"
     result, meta = db.cypher_query(query, {"uid": form_data.email_id.split("@")[0]})
     if result == [] or not verify_password(form_data.password, result[0][0].get("password")):
         db.close_connection()
@@ -131,7 +132,34 @@ def token_verification(request: Request):
 async def get_user(request: Request):
     token = request.headers.get("Authorization").split(" ")[1]
     user = decode_token(token)
+    db = get_database_instance()
+    query = "MATCH (s { uid: $uid} ) RETURN labels(s)"
+    res, _ = db.cypher_query(query, { "uid": user.get("uid") })
+    user['role'] = 'STUDENT' if 'STUDENT' in res[0][0] else 'FACULTY'
+    db.close_connection()
     return JSONResponse(status_code=200, content=user)
+
+
+@router.get("/get_user_projects")
+async def get_user_projects(request: Request):
+    token = request.headers.get("Authorization")
+    if token is None:
+        raise HTTPException(status_code=401, detail="Invalid Token")
+    token = token.split(" ")[1]
+    user = decode_token(token)
+    db = get_database_instance()
+    query = """
+    MATCH (s:STUDENT {uid: $uid})
+    RETURN s.projects
+    """
+    result, meta = db.cypher_query(query, { "uid": user.get("uid") })
+    db.close_connection()
+    projects = []
+    for project in result[0][0]:
+        project_details = mongodb[project].find_one({ "title": project }, { "_id": 0 })
+        if project_details:
+            projects.append(project_details)
+    return JSONResponse(status_code=200, content={"projects": projects})
 
 
 @router.put("/{user_name}/addProject")

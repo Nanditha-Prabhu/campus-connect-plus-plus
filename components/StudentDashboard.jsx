@@ -30,16 +30,33 @@ const StudentDashboard = () => {
     });
     
     useEffect(() => {
-        axios.get(`${BACKEND_URL}/users/get_user`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
-            })
-            .then(res => {
-                console.log(res.data)
-                setUserDetails(res.data);
-            })
-            .catch(err => console.log(err));   
+        async function getUserDetails() {
+            if (localStorage.getItem('token') === null) {
+                navigate('/student_signin');
+            }
+            await axios.get(`${BACKEND_URL}/users/verify_token`)
+                .then(res => {
+                    if (res.status !== 200) {
+                        navigate('/student_signin');
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    // navigate('/student_signin');
+                });
+            
+            axios.get(`${BACKEND_URL}/users/get_user`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                .then(res => {
+                    console.log(res.data)
+                    setUserDetails(res.data);
+                })
+                .catch(err => console.log(err));   
+        }
+        getUserDetails();
     }, []);
 
     const userDetailsCard = () => {
@@ -52,7 +69,7 @@ const StudentDashboard = () => {
                         <img src="https://cdn.vectorstock.com/i/500p/08/19/gray-photo-placeholder-icon-design-ui-vector-35850819.jpg" alt="User" />
                     </div>
                     <div>
-                        <h1 className="text-gray-900 dark:text-white text-2xl font-bold">{userDetails && userDetails.student_name}</h1>
+                        <h1 className="text-gray-900 dark:text-white text-2xl font-bold">{userDetails.student_name ? userDetails.student_name: "Your Name"}</h1>
                         <p className="text-gray-600 dark:text-gray-300">{userDetails && userDetails.usn}</p>
                     </div>
                 </div>
@@ -104,6 +121,8 @@ const StudentDashboard = () => {
                 description: "This is a task"
             }
         ]
+
+        // useEffect(() )
 
         return (
             <ul className="list-none space-y-2">
@@ -173,11 +192,11 @@ const StudentDashboard = () => {
         return (
             <div className="p-12 rounded-lg shadow-lg bg-gray-100 dark:bg-gray-800">
                 <div className="grid md:grid-cols-2 gap-4">
-                    <div className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg ">
-                        {/* Labs */}
+                    {/* Labs */}
+                    {/* <div className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg ">
                         <h1 className="dark:text-gray-100 text-lg md:text-2xl p-2 font-bold">Labs</h1>
                         <LabsList />
-                    </div>
+                    </div> */}
                     <div className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg">
                         {/* Todays task */}
                         <h1 className="dark:text-gray-100 text-lg md:text-2xl p-2 font-bold">Todays' Tasks</h1>
@@ -218,10 +237,10 @@ const StudentDashboard = () => {
                         <TodaysTaskList />
                     </div>
                     {/* Recent Activities */}
-                    <div className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg">
+                    {/* <div className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg">
                         <h1 className="dark:text-gray-100 text-lg md:text-2xl p-2 font-bold">Recent Activities</h1>
                         <TodaysTaskList />
-                    </div>
+                    </div> */}
                 </div>
             </div>
         );
@@ -231,19 +250,19 @@ const StudentDashboard = () => {
         const analyticsData = [
             {
                 'title': 'Total Ongoing Project',
-                'value': 10
+                'value': userDetails.projects.length
             },
             {
                 'title': 'Total Project Completed',
-                'value': 100
+                'value': Math.ceil(100*Math.random())
             },
             {
                 'title': 'Total Labs Utilized',
-                'value': 32
+                'value': Math.ceil(100*Math.random())
             },
             {
                 'title': 'Total Research Publications',
-                'value': 12
+                'value': Math.ceil(100*Math.random())
             }
         ]
 
