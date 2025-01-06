@@ -439,10 +439,10 @@ const StudentDashboard = () => {
                             className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
                         />
                     </div>
-                    <div className='flex justify-center'>
+                    <div className='flex justify-center w-full'>
                         <button
                             type="submit"
-                            className="rounded border border-gray-800 dark:border-green-200 bg-transparent hover:bg-green-400 px-5 py-2.5 text-sm font-medium text-slate-800 dark:text-white shadow active:bg-green-700"
+                            className="w-full rounded border border-gray-800 dark:border-green-200 bg-transparent hover:bg-green-400 px-5 py-2.5 text-sm font-medium text-slate-800 dark:text-white shadow active:bg-green-700"
                         >
                             Create Project
                         </button>

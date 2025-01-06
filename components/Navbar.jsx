@@ -19,7 +19,7 @@ export default function Navbar() {
               </button>
             </div>
             <p className="font-bold font-mono text-teal-600 dark:text-teal-300">
-              Campus-Connect++
+              Campus Connect ++
             </p>
           </div>
         </div>
