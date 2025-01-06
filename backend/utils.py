@@ -4,6 +4,8 @@ import jwt
 import os
 from dotenv import load_dotenv
 from fastapi import HTTPException
+from database import get_database_instance
+
 
 # Load environment variables
 load_dotenv()
@@ -39,4 +41,26 @@ def verify_token(token: str):
             raise HTTPException(status_code=403, detail="Token is Invalid or Expired")
         return payload
     except jwt.PyJWTError:
+        raise HTTPException(status_code=403, detail="Token is Invalid or Expired")
+
+
+
+def decode_token(token: str):
+    db = get_database_instance()
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        uid = payload.get("sub")
+        if uid is None:
+            raise HTTPException(status_code=403, detail="Token is Invalid or Expired")
+        query = """
+        MATCH (s {uid: $uid})
+        RETURN s
+        """
+        result, meta = db.cypher_query(query, {"uid": uid})
+        db.close_connection()
+        if result == []:
+            raise HTTPException(status_code=403, detail="Token is Invalid or Expired")
+        return dict(result[0][0])
+    except jwt.PyJWTError:
+        db.close_connection()
         raise HTTPException(status_code=403, detail="Token is Invalid or Expired")

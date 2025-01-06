@@ -1,16 +1,50 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 // import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react';
+import axios from 'axios';
 
 const StudentDashboard = () => {
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+    const navigate = useNavigate();
     // User Info
     // User Projects
     // Engaged Labs
     // Streak map
     // Recent Activity
+
+    const [userDetails, setUserDetails] = useState({
+        name: '',
+        uid: '',
+        email_id: '',
+        department: '',
+        area_of_interest: [],
+        designation: '',
+    });
+
+    useEffect(() => {
+        async function fetchDetails() {
+            if (localStorage.getItem('token') === null)
+                navigate("/faculty_signin")
+            await axios.get(`${BACKEND_URL}/users/get_user`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            })
+                .then(res => {
+                    setUserDetails(res.data)
+                    console.log(res.data)
+                })
+                .catch(err => {
+                    console.log(err)
+                    // navigate("/faculty_signin")
+                })
+        }
+        fetchDetails()
+    }, []);
+
     const userDetailsCard = () => {
         return (
             <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
@@ -20,8 +54,8 @@ const StudentDashboard = () => {
                         <img src="https://cdn.vectorstock.com/i/500p/08/19/gray-photo-placeholder-icon-design-ui-vector-35850819.jpg" alt="User" />
                     </div>
                     <div>
-                        <h1 className="text-gray-900 dark:text-white text-2xl font-bold">John Doe</h1>
-                        <p className="text-gray-600 dark:text-gray-300">Hello world</p>
+                        <h1 className="text-gray-900 dark:text-white text-2xl font-bold">{userDetails.name}</h1>
+                        <p className="text-gray-600 dark:text-gray-300">{userDetails.designation}</p>
                     </div>
                 </div>
                 {/* Socials */}
@@ -37,6 +71,15 @@ const StudentDashboard = () => {
                         <li><a href="#" className="text-blue-600 dark:text-blue-300 hover:underline">Publication 1</a></li>
                         <li><a href="#" className="text-blue-600 dark:text-blue-300 hover:underline">Publication 2</a></li>
                         <li><a href="#" className="text-blue-600 dark:text-blue-300 hover:underline">Publication 3</a></li>
+                    </ul>
+                </div>
+                {/* Area of Interests */}
+                <div>
+                    <h1 className="text-gray-900 dark:text-white text-xl font-semibold mb-2 border-t-2 dark:border-gray-500 pt-4">Area of Interests</h1>
+                    <ul className="list-none space-y-2 pb-4">
+                        {userDetails.area_of_interest && userDetails.area_of_interest?.map((interest, idx) => (
+                            <li key={idx}><a href="#" className="text-blue-600 dark:text-blue-300 hover:underline">{interest}</a></li>
+                        ))}
                     </ul>
                 </div>
             </div>
@@ -359,11 +402,21 @@ const StudentDashboard = () => {
     //New Project creation section for faculty where they can create a new project by giving the details like project name, description, area of interests, skills required.
     const ProjectCreation = () => {
         const [formData, setFormData] = useState({
-            project: "",
+            title: "",
             description: "",
             area: "",
-            skills: ""
+            skills: "",
+            created_at: "",
+            created_by: "",
+            project_status: "yet to start",
         });
+        const [areaOfInt, setAreaOfInt] = useState([]);
+
+        useEffect(() => {
+            axios.get(`${BACKEND_URL}/search/all_areas`)
+                .then(res => setAreaOfInt(res.data))
+                .catch(err => console.log(err))
+        }, []);
 
         const handleChange = (e) => {
             setFormData({
@@ -372,9 +425,38 @@ const StudentDashboard = () => {
             });
         };
 
-        const handleSubmit = (e) => {
+        const handleSubmit = async (e) => {
             e.preventDefault();
+            let user;
+            // get user details
+            await axios.get(`${BACKEND_URL}/users/get_user`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                })
+                .then((res) => {
+                    user = res.data;
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+            console.log(user);
+            
+            // update created_at field
+            setFormData({ ...formData, created_at: new Date().toISOString() });
+            // update created_by field
+            setFormData({ ...formData, created_by: user.uid });
+
             console.log(formData);
+            // API call to create project
+            await axios.post(`${BACKEND_URL}/projects/${formData.title}`, formData)
+                .then((res) => {
+                    console.log(res)
+                    setFormData({ ...formData, ...res.data });
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
         };
 
         return (
@@ -387,8 +469,8 @@ const StudentDashboard = () => {
                         </label>
                         <input
                             required
-                            name="project"
-                            value={formData.project}
+                            name="title"
+                            value={formData.title}
                             onChange={handleChange}
                             type="text"
                             className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
@@ -420,10 +502,9 @@ const StudentDashboard = () => {
                             className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
                         >
                             <option value="">Select area of interest</option>
-                            <option value="AI">AI</option>
-                            <option value="ML">ML</option>
-                            <option value="Web Development">Web Development</option>
-                            <option value="App Development">App Development</option>
+                            {areaOfInt && areaOfInt?.map((interest, idx) => (
+                                <option key={idx} value={interest}>{interest}</option>
+                            ))}
                         </select>
                     </div>
                     <div>

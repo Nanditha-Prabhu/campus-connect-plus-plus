@@ -17,7 +17,7 @@ export default function StudentSignUp() {
     async function asyncfun() {
       const isLoggedIn = await verifyUserToken();
       if (isLoggedIn) {
-        navigate("/dashboard");
+        navigate("/faculty-dashboard");
       }
     }
     asyncfun();
@@ -45,22 +45,32 @@ export default function StudentSignUp() {
       const r = await axios.post(
         `${BACKEND_URL}/users/faculty/login`,
         formData
-      );
-      const data = r.data;
-      if (r.status === 200) {
-        setResponse("Successful");
-        localStorage.setItem("token", data.access_token);
-        setTimeout(() => {
-          navigate("/student-dashboard");
-        }, 2000);
-      } else {
+      ).then((res) => {
+        if (res.status === 200) {
+          setResponse("Successful");
+          localStorage.setItem("token", res.data.access_token);
+          setTimeout(() => {
+            navigate("/faculty-dashboard");
+          }, 2000);
+        }
+        else if (res.status === 400) {
+          console.log(res.data)
+          setResponse(res.data.details);
+          setIsLoading(false);
+        } else {
+          setResponse("Unsuccessful");
+          setIsLoading(false);
+        }
+      })
+      .catch((error) => {
         setResponse("Unsuccessful");
-      }
-      setIsLoading(false);
+        console.error("Error submitting form:", error);
+      });
     } catch (error) {
-      setResponse(null);
+      setResponse("Unsuccessful");
       console.error("Error submitting form:", error);
     }
+    setIsLoading(false);
   };
 
   return (

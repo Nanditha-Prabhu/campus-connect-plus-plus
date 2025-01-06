@@ -1,15 +1,66 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { BsKanban } from 'react-icons/bs';
+import { FaCalendarAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const StudentDashboard = () => {
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+    const navigate = useNavigate();
+
     // User Info
     // User Projects
     // Engaged Labs
     // Streak map
     // Recent Activity
+ 
+    const [userDetails, setUserDetails] = useState({
+        student_name: '',
+        usn: '',
+        area_of_interest: [],
+        skills: [],
+        projects: [],
+        labs: [],
+        research_publications: [],
+        activity_streak: []
+    });
+    
+    useEffect(() => {
+        async function getUserDetails() {
+            if (localStorage.getItem('token') === null) {
+                navigate('/student_signin');
+            }
+            await axios.get(`${BACKEND_URL}/users/verify_token`)
+                .then(res => {
+                    if (res.status !== 200) {
+                        navigate('/student_signin');
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    // navigate('/student_signin');
+                });
+            
+            axios.get(`${BACKEND_URL}/users/get_user`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                .then(res => {
+                    console.log(res.data)
+                    setUserDetails(res.data);
+                })
+                .catch(err => console.log(err));   
+        }
+        getUserDetails();
+    }, []);
+
     const userDetailsCard = () => {
+        
         return (
             <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
                 {/* User info */}
@@ -18,8 +69,8 @@ const StudentDashboard = () => {
                         <img src="https://cdn.vectorstock.com/i/500p/08/19/gray-photo-placeholder-icon-design-ui-vector-35850819.jpg" alt="User" />
                     </div>
                     <div>
-                        <h1 className="text-gray-900 dark:text-white text-2xl font-bold">John Doe</h1>
-                        <p className="text-gray-600 dark:text-gray-300">Hello world</p>
+                        <h1 className="text-gray-900 dark:text-white text-2xl font-bold">{userDetails.student_name ? userDetails.student_name: "Your Name"}</h1>
+                        <p className="text-gray-600 dark:text-gray-300">{userDetails && userDetails.usn}</p>
                     </div>
                 </div>
                 {/* Socials */}
@@ -37,6 +88,24 @@ const StudentDashboard = () => {
                         <li><a href="#" className="text-blue-600 dark:text-blue-300 hover:underline">Publication 3</a></li>
                     </ul>
                 </div>
+                {/* Area of Interests */}
+                <div>
+                    <h1 className="text-gray-900 dark:text-white text-xl font-semibold mb-2 border-t-2 dark:border-gray-500 pt-4">Area of Interests</h1>
+                    <ul className="list-none space-y-2 pb-4">
+                        {userDetails.area_of_interest && userDetails.area_of_interest?.map((interest, key) => (
+                            <li key={key} className="text-blue-600 dark:text-blue-300 hover:underline">{interest}</li>
+                        ))}
+                    </ul>
+                </div>
+                {/* Skills */}
+                <div>
+                    <h1 className="text-gray-900 dark:text-white text-xl font-semibold mb-2 border-t-2 dark:border-gray-500 pt-4">Skills</h1>
+                    <ul className="list-none space-y-2 pb-4">
+                        {userDetails.skills && userDetails.skills?.map((interest, key) => (
+                            <li key={key} className="text-blue-600 dark:text-blue-300 hover:underline">{interest}</li>
+                        ))}
+                    </ul>
+                </div>
             </div>
         );
     }
@@ -52,6 +121,8 @@ const StudentDashboard = () => {
                 description: "This is a task"
             }
         ]
+
+        // useEffect(() )
 
         return (
             <ul className="list-none space-y-2">
@@ -94,15 +165,38 @@ const StudentDashboard = () => {
         )
     }
 
+    const ProjectCard = () => {
+        return (
+            <ul className="list-none space-y-2">
+                {userDetails.projects?.slice(0, 3).map((project, key) => (
+                    <li key={key} className="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg">
+                        <div className="p-3 flex justify-between items-center">
+                            <h1 className="text-lg md:text-xl text-gray-900 dark:text-white font-semibold">{project}</h1>
+                            <div className="flex items-center space-x-4">
+                                <Link to={`/project/${project}`} className="text-blue-600 dark:text-blue-300 hover:underline">View</Link>
+                                <div className="hover:cursor-pointer" onClick={() => navigate(`/projects/${project}/kanban`)}>
+                                    <BsKanban className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" />
+                                </div>
+                                <div className="hover:cursor-pointer" onClick={() => navigate(`/projects/${project}/calendar`)}>
+                                    <FaCalendarAlt className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" />
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        )
+    }
+
     const userMetrics = () => {
         return (
             <div className="p-12 rounded-lg shadow-lg bg-gray-100 dark:bg-gray-800">
                 <div className="grid md:grid-cols-2 gap-4">
-                    <div className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg ">
-                        {/* Labs */}
+                    {/* Labs */}
+                    {/* <div className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg ">
                         <h1 className="dark:text-gray-100 text-lg md:text-2xl p-2 font-bold">Labs</h1>
                         <LabsList />
-                    </div>
+                    </div> */}
                     <div className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg">
                         {/* Todays task */}
                         <h1 className="dark:text-gray-100 text-lg md:text-2xl p-2 font-bold">Todays' Tasks</h1>
@@ -135,7 +229,7 @@ const StudentDashboard = () => {
                     {/* Projects */}
                     <div className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg">
                         <h1 className="dark:text-gray-100 text-lg md:text-2xl p-2 font-bold">Projects</h1>
-                        <TodaysTaskList />
+                        <ProjectCard />
                     </div>
                     {/* Reminders */}
                     <div className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg">
@@ -143,10 +237,10 @@ const StudentDashboard = () => {
                         <TodaysTaskList />
                     </div>
                     {/* Recent Activities */}
-                    <div className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg">
+                    {/* <div className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg">
                         <h1 className="dark:text-gray-100 text-lg md:text-2xl p-2 font-bold">Recent Activities</h1>
                         <TodaysTaskList />
-                    </div>
+                    </div> */}
                 </div>
             </div>
         );
@@ -156,19 +250,19 @@ const StudentDashboard = () => {
         const analyticsData = [
             {
                 'title': 'Total Ongoing Project',
-                'value': 10
+                'value': userDetails.projects.length
             },
             {
                 'title': 'Total Project Completed',
-                'value': 100
+                'value': Math.ceil(100*Math.random())
             },
             {
                 'title': 'Total Labs Utilized',
-                'value': 32
+                'value': Math.ceil(100*Math.random())
             },
             {
                 'title': 'Total Research Publications',
-                'value': 12
+                'value': Math.ceil(100*Math.random())
             }
         ]
 
@@ -186,34 +280,6 @@ const StudentDashboard = () => {
             </div>
         );
     }
-
-    const userProjectsCard = () => {
-        const project = [
-            {
-                project: "Project Zero",
-                description: "This is a project",
-            },
-            {
-                project: "Project Zero",
-                description: "This is a project",
-            }
-        ]
-
-        return (
-            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg">
-                <h1 className="text-xl p-4 text-gray-900 dark:text-white font-semibold px-12 pt-8">Projects</h1>
-                <div className="grid md:grid-cols-2 gap-4 px-12 pb-12">
-                    {project.map((project, key) => (
-                        <div key={key} className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg">
-                            <Link to="/project" className="dark:text-gray-100 text-lg font-bold">{project.project}</Link>
-                            <p className="text-gray-900 dark:text-gray-300">{project.description}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    }
-
 
     const streakMapCard = () => {
         return (
@@ -239,30 +305,6 @@ const StudentDashboard = () => {
         );
     }
 
-    const recentActivityCard = () => {
-        const recentActivites = [
-            {
-                activity: "Activity 1"
-            },
-            {
-                activity: "Activity 2"
-            }
-        ]
-
-        return (
-            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg">
-                <h1 className="text-xl p-4 text-gray-900 dark:text-white font-semibold px-12 pt-8">Recent Activity</h1>
-                <div className="space-y-4 px-12 pb-12">
-                    {recentActivites.map((activity, key) => (
-                        <div key={key} className="bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg">
-                            <p className="text-gray-900 dark:text-gray-300">{activity.activity}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="dark:bg-gray-900 grid md:grid-cols-[25%_75%] gap-4 p-12 pt-24">
             <div>
@@ -271,9 +313,7 @@ const StudentDashboard = () => {
             <div className="space-y-4">
                 {userMetrics()}
                 {userAnaltyicsCard()}
-                {/* {userProjectsCard()} */}
                 {streakMapCard()}
-                {/* {recentActivityCard()} */}
             </div>
         </div>
     );
