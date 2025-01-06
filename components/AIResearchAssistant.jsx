@@ -10,6 +10,7 @@ import axios from 'axios';
 const AIResearchAssistant = () => {
     const [query, setQuery] = useState('');
     const [papers, setPapers] = useState([]);
+    const [numPapers, setNumPapers] = useState(5);
     const [loading, setLoading] = useState(false);
 
     const handleSearch = async () => {
@@ -38,7 +39,8 @@ const AIResearchAssistant = () => {
     return (
         <div className="container mx-auto p-4 pt-24 dark:bg-gray-900 dark:text-white">
             <h1 className="text-3xl text-center font-bold mb-4">AI-Powered Research Assistant</h1>
-            <div className="mb-4 flex flex-col justify-center align-middle items-center">
+            <div className="mb-4 flex flex-col justify-center align-middle items-start max-w-lg mx-auto">
+                <label className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Search Query</label>
                 <input
                     type="text"
                     value={query}
@@ -46,10 +48,19 @@ const AIResearchAssistant = () => {
                     placeholder="Search for research papers ..."
                     className="border border-gray-300 p-2 rounded w-full mb-4 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                 />
+                <label className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Number of Papers</label>
+                <input
+                    type="number"
+                    min="1"
+                    value={numPapers}
+                    onChange={(e) => setNumPapers(e.target.value)}
+                    placeholder="Enter number of papers ..."
+                    className="border border-gray-300 p-2 rounded w-full mb-4 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                />
                 <button
                     onClick={handleSearch}
                     disabled={loading}
-                    className={`rounded border justify-center items-center border-gray-800 dark:border-green-200 bg-green-400 hover:bg-green-500 px-5 py-2.5 text-sm font-medium text-slate-800 dark:text-white shadow active:bg-green-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`rounded border w-full justify-center items-center border-gray-800 dark:border-green-200 bg-green-400 hover:bg-green-500 px-5 py-2.5 text-sm font-medium text-slate-800 dark:text-white shadow active:bg-green-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                     {loading ? 'Searching...' : 'Search'}
                 </button>
