@@ -8,7 +8,7 @@ import { PiProjectorScreenChartBold, PiStudentFill } from "react-icons/pi";
 import { RiTeamLine } from "react-icons/ri";
 import { LuLogIn, LuLogOut } from "react-icons/lu";
 import { verifyUserToken, getRole } from "./utils";
-
+import { FaLightbulb } from "react-icons/fa6";
 
 export default function Sidebar({ isOpen }) {
   const [userLoggedIn, setUserLoggedIn] = useState(false);
@@ -282,37 +282,6 @@ export default function Sidebar({ isOpen }) {
             <p className="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">Project</p>
             <li>
               <Link
-                to="/project"
-                className="flex items-center p-2  rounded-lg text-gray-500 dark:text-gray-200 hover:bg-gray-300 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-100 group"
-              >
-                <PiProjectorScreenChartBold className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" />
-                <span className="flex-1 ms-3 whitespace-nowrap">Project Dashboard</span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/calendar"
-                className="flex items-center p-2 rounded-lg text-gray-500 dark:text-gray-200 hover:bg-gray-300 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-100 group"
-              >
-                <FaCalendarAlt className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" />
-                <span className="flex-1 ms-3 whitespace-nowrap">
-                  Calendar
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/kanban"
-                className="flex items-center p-2 rounded-lg text-gray-500 dark:text-gray-200 hover:bg-gray-300 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-100 group"
-              >
-                <BsKanban className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" />
-                <span className="flex-1 ms-3 whitespace-nowrap">
-                  Kanban Board
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link
                 to="/project-listing"
                 className="flex items-center p-2 rounded-lg text-gray-500 dark:text-gray-200 hover:bg-gray-300 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-100 group"
               >
@@ -327,9 +296,9 @@ export default function Sidebar({ isOpen }) {
                 to="/ai-research-assistant"
                 className="flex items-center p-2 rounded-lg text-gray-500 dark:text-gray-200 hover:bg-gray-300 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-100 group"
               >
-                <BsKanban className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" />
+                <FaLightbulb className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" />
                 <span className="flex-1 ms-3 whitespace-nowrap">
-                  AI powered Research Assistant
+                   Research Assistant
                 </span>
               </Link>
             </li>
