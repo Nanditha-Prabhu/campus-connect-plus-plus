@@ -1,5 +1,5 @@
 //A page that allows to search all the available projects as well as the projects that the user is working on. The user can also apply for the projects that are available. The user can also view the details of the project and submit the proposal if they are interested to work for it. The faculty incharge will review the proposal and get back to the user.
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,6 +11,11 @@ const ProjectListing = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [userProjects, setUserProjects] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selProject, setSelProject] = useState();
+    const [user, setUser] = useState();
+    const formData = useRef(null);
+
+    let proposal = {};
 
     // The problem is that you are calling setProjects directly inside the component body, which causes an infinite re-render loop. To fix this, move the dummy project initialization inside a useEffect hook.
     useEffect(() => {
@@ -34,7 +39,20 @@ const ProjectListing = () => {
                 setUserProjects(res.data.projects);
             }
         })
-        .catch(error => console.error('Error fetching projects:', error));            
+        .catch(error => console.error('Error fetching projects:', error));        
+
+        // get user details
+        axios.get(`${BACKEND_URL}/users/get_user`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+        .then(res => {
+            if (res.status === 200) {
+                setUser(res.data);
+            }
+        })
+        .catch(error => console.error('Error fetching user:', error));
     }, []);
   // The problem is that you are calling setProjects directly inside the component body, which causes an infinite re-render loop. To fix this, move the dummy project initialization inside a useEffect hook.
 //   useEffect(() => {
@@ -71,12 +89,10 @@ const ProjectListing = () => {
     setSearchTerm(event.target.value);
   };
 
-  const handleApply = (projectId) => {
+  const handleApply = (project) => {
     // Logic to apply for a project
-    axios
-      .post(`/api/projects/${projectId}/apply`)
-      .then((response) => alert("Applied successfully!"))
-      .catch((error) => console.error("Error applying for project:", error));
+    console.log("Applying for project:", project);
+    setSelProject(project);
   };
 
     const handleViewDetails = async (event, project_name) => {
@@ -104,6 +120,29 @@ const ProjectListing = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    formData.current = new FormData(formData.current);
+    
+    const proposal = {
+      project_name: selProject.title,
+      student_name: user.student_name,
+      faculty_name: selProject.created_by,
+      proposal_text: formData.current.get('proposal'),
+    }
+    console.log(proposal);
+    // Logic to submit proposal
+    await axios
+      .post(`${BACKEND_URL}/projects/proposal/submitProposal`, proposal)
+      .then((response) => {
+        console.log(response);
+        alert("Proposal submitted successfully!")
+      })
+      .catch((error) => console.error("Error submitting proposal:", error));
+    
+    closeModal();
   };
 
   //a modal for proposal submission
@@ -142,7 +181,7 @@ const ProjectListing = () => {
                     >
                       Submit Proposal
                     </h3>
-                    <form className="mt-4">
+                    <form className="mt-4" ref={formData}>
                       <div>
                         <label
                           htmlFor="proposal"
@@ -171,6 +210,7 @@ const ProjectListing = () => {
                 <button
                   type="button"
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={handleSubmit}
                 >
                   Submit
                 </button>
@@ -215,7 +255,7 @@ const ProjectListing = () => {
                         <button
                             onClick={() => {
                                 openModal();
-                                handleApply(project.id);
+                                handleApply(project);
                             }}
                             className=" cursor-pointer rounded border border-gray-800 dark:border-green-200 bg-green-400 hover:bg-green-500 px-5 py-2.5 text-sm font-medium text-slate-800 dark:text-white shadow  active:bg-green-700"
                         >

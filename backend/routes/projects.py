@@ -1,8 +1,14 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
-from database import get_mongodb_instance
-from schemas.projects import KanbanBoard, ProjectDetails, CalenderEvent
+from database import get_mongodb_instance, get_database_instance
+from schemas.projects import (
+    KanbanBoard, 
+    ProjectDetails, 
+    CalenderEvent,
+    ProjectProposal
+)
+from collections import defaultdict
 
 
 # Initialize variables
@@ -136,3 +142,64 @@ async def delete_event(project_name: str, event: str, event_details: CalenderEve
     print(project_name, event, event_details)
     db[project_name]['calendar'][event].delete_one(event_details.model_dump(mode='python'))
     return JSONResponse(content={'message': "deleted successfully"}, status_code=200)
+
+
+########################### Project Proposal ############################
+@router.post("/proposal/submitProposal", tags=["Project Proposal"])
+async def submit_proposal(projectProposal: ProjectProposal):
+    ldb = get_mongodb_instance("faculty")
+    ldb[projectProposal.faculty_name]['proposals'][projectProposal.project_name].insert_one(projectProposal.model_dump(mode='python'))
+    return JSONResponse(content={'message': "Proposal submitted successfully"}, status_code=200)
+
+
+@router.put("/proposal/rejectProposal", tags=["Project Proposal"])
+async def reject_proposal(projectProposal: ProjectProposal):
+    ldb = get_mongodb_instance("faculty")
+    ldb[projectProposal.faculty_name]['proposals'][projectProposal.project_name].update_one(
+        {'project_name': projectProposal.project_name},
+        {'$set': {'status': 'REJECTED'}}
+    )
+    return JSONResponse(content={'message': "Proposal rejected successfully"}, status_code=200)
+
+
+@router.put("/proposal/acceptProposal", tags=["Project Proposal"])
+async def accept_proposal(projectProposal: ProjectProposal):
+    ldb = get_mongodb_instance("faculty")
+    ldb[projectProposal.faculty_name]['proposals'][projectProposal.project_name].update_one(
+        {'project_name': projectProposal.project_name},
+        {'$set': {'status': 'ACCEPTED'}}
+    )
+    db = get_database_instance()
+    user, _ = db.cypher_query("MATCH (s:STUDENT {student_name: $student_name}) RETURN s", { "student_name": projectProposal.student_name })
+    user = dict(user[0][0])
+    query = """
+    MATCH (s:STUDENT {uid: $uid})
+    SET s.projects = s.projects + $project_name
+    RETURN s
+    """
+    if 'projects' not in user:
+        query = """
+            MATCH (s:STUDENT {uid: $uid})
+            SET s.projects = [$project_name]
+            RETURN s
+        """
+    result, meta = db.cypher_query(query, { 'uid': user['uid'], 'project_name': projectProposal.project_name})
+    db.close_connection()
+    return JSONResponse(content={'message': "Proposal accepted successfully"}, status_code=200)
+
+
+@router.get("/proposal/getProposal/{faculty_name}", tags=["Project Proposal"])
+async def get_proposal(faculty_name: str):
+    proposals = defaultdict(list)
+    ldb = get_mongodb_instance("faculty")
+    ldb.database.list_collection_names()    
+    for collection in ldb.database.list_collection_names():
+        collection = collection.split('.')
+        if len(collection) >= 4:
+            faculty_name = collection[1]
+            project_name = collection[3]
+            proposal_details = ldb[faculty_name]['proposals'][project_name].find_one({ 'project_name': project_name }, {'_id': False})
+            if proposal_details and proposal_details.get('status') == 'PENDING':
+                if proposal_details not in proposals[project_name]:
+                    proposals[project_name].append(proposal_details)
+    return JSONResponse(content=proposals, status_code=200)

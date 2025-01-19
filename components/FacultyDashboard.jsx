@@ -310,42 +310,82 @@ const StudentDashboard = () => {
 
     // Proposal acceptance section for all the proposals submitted from project listing page
     const ProjectProposals = () => {
-        const [proposals, setProposals] = useState([
-            {
-                project: "Project Zero",
-                proposals: [
-                    {
-                        title: "Proposal 1",
-                        description: "This is a proposal",
-                        status: "Pending"
-                    },
-                    {
-                        title: "Proposal 2",
-                        description: "This is a proposal",
-                        status: "Pending"
+        const [proposals, setProposals] = useState([]);
+        // const [proposals, setProposals] = useState([
+        //     {
+        //         project: "Project Zero",
+        //         proposals: [
+        //             {
+        //                 title: "Proposal 1",
+        //                 description: "This is a proposal",
+        //                 status: "Pending"
+        //             },
+        //             {
+        //                 title: "Proposal 2",
+        //                 description: "This is a proposal",
+        //                 status: "Pending"
+        //             }
+        //         ]
+        //     },
+        //     {
+        //         project: "Project One",
+        //         proposals: [
+        //             {
+        //                 title: "Proposal 3",
+        //                 description: "This is a proposal",
+        //                 status: "Pending"
+        //             },
+        //             {
+        //                 title: "Proposal 4",
+        //                 description: "This is a proposal",
+        //                 status: "Pending"
+        //             }
+        //         ]
+        //     }
+        // ]);
+
+        useEffect(() => {
+            // console.log(userDetails.uid)
+            axios.get(`${BACKEND_URL}/projects/proposal/getProposal/${userDetails.uid}`)
+                .then(res => {
+                    console.log(res.data)
+
+                    let props = res.data;
+                    let proposalsArray = [];
+                    for (let projectKey in props) {
+                        if (props.hasOwnProperty(projectKey)) {
+                            proposalsArray.push({
+                                project: projectKey,
+                                proposals: props[projectKey]
+                            });
+                        }
                     }
-                ]
-            },
-            {
-                project: "Project One",
-                proposals: [
-                    {
-                        title: "Proposal 3",
-                        description: "This is a proposal",
-                        status: "Pending"
-                    },
-                    {
-                        title: "Proposal 4",
-                        description: "This is a proposal",
-                        status: "Pending"
-                    }
-                ]
-            }
-        ]);
+                    // console.log(proposalsArray);
+                    setProposals(proposalsArray);
+                })
+                .catch(err => console.log(err))
+            
+            
+        }, [userDetails.uid]);
 
         const handleProposalAction = (projectIndex, proposalIndex, action) => {
+            if (action === 'Accepted') {
+                // API call to accept proposal
+                let prop = proposals[projectIndex].proposals[proposalIndex]
+                axios
+                    .put(`${BACKEND_URL}/projects/proposal/acceptProposal`, prop)
+                    .then(res => console.log(res))
+                    .catch(err => console.log(err))
+            } else if (action === 'Rejected') {
+                // API call to reject proposal
+                axios
+                    .put(`${BACKEND_URL}/projects/proposal/rejectProposal`, proposals[projectIndex].proposals[proposalIndex])
+                    .then(res => console.log(res))
+                    .catch(err => console.log(err))
+            }
+            // accept or reject, you are deleting the proposal from the list
             const updatedProposals = [...proposals];
-            updatedProposals[projectIndex].proposals[proposalIndex].status = action;
+            delete updatedProposals[projectIndex].proposals[proposalIndex];
             setProposals(updatedProposals);
         };
 
@@ -353,7 +393,7 @@ const StudentDashboard = () => {
             <div className="p-12 rounded-lg shadow-lg bg-gray-100 dark:bg-gray-800">
                 <h1 className=" text-gray-900  dark:text-gray-100 text-lg md:text-2xl font-bold">Project Proposal Submissions</h1>
                 <p className=' text-black dark:text-gray-500 mb-4'>You can accept or reject the project proposal for each project.</p>
-                {proposals.map((project, projectIndex) => (
+                {proposals && proposals?.map((project, projectIndex) => (
                     <div key={projectIndex} className=" bg-slate-200 dark:bg-gray-700 p-4 rounded shadow-lg mb-4">
                         <button
                             className="text-gray-900 dark:text-white w-full focus:outline-none"
@@ -372,8 +412,8 @@ const StudentDashboard = () => {
                             <div className="mt-4 space-y-4">
                                 {project.proposals.map((proposal, proposalIndex) => (
                                     <div key={proposalIndex} className="bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg p-4">
-                                        <h1 className="text-lg md:text-xl text-gray-900 dark:text-white font-semibold">{proposal.title}</h1>
-                                        <p className="md:text-lg text-gray-900 dark:text-gray-300">{proposal.description}</p>
+                                        <h1 className="text-lg md:text-xl text-gray-900 dark:text-white font-semibold">{proposal.student_name}</h1>
+                                        <p className="md:text-lg text-gray-900 dark:text-gray-300">{proposal.proposal_text}</p>
                                         <p className="md:text-lg text-gray-900 dark:text-gray-300">Status: {proposal.status}</p>
                                         <div className="flex space-x-4 mt-2">
                                             <button
@@ -445,7 +485,7 @@ const StudentDashboard = () => {
             // update created_at field
             setFormData({ ...formData, created_at: new Date().toISOString() });
             // update created_by field
-            setFormData({ ...formData, created_by: user.uid });
+            formData.created_by = user.uid;
 
             console.log(formData);
             // API call to create project
